@@ -1,0 +1,30 @@
+id: depot-charger-outage
+title: Depot charger outage
+question: >-
+  If a third of depot charging capacity goes offline for a night, can demand-aware
+  dispatch keep completion within half a point of normal operations?
+owner: fleet-reliability
+config_version: 1.0.0
+baseline:
+  label: Full charging capacity
+  fleet: { vehicles: 220, depots: 2, chargers: 36, starting_soc: 0.70 }
+  policy:
+    dispatch: nearest_available
+    airport_priority: false
+    demand_aware_repositioning: false
+    service_area_expansion: false
+proposed:
+  label: 24 chargers + demand-aware
+  fleet: { vehicles: 220, depots: 2, chargers: 24, starting_soc: 0.70 }
+  policy:
+    dispatch: demand_aware
+    airport_priority: false
+    demand_aware_repositioning: true
+    service_area_expansion: false
+demand: { percentile: p50, rain: false, event_surge: false, day_of_week: 2 }
+run: { replications: 16, seed: 20260318, horizon_minutes: 360, window_start_hour: 21 }
+targets:
+  p50_pickup_minutes: 5.5
+  p90_pickup_minutes: 8.0
+  max_completion_loss_pct: 0.5
+  max_charger_queue_minutes: 20.0

@@ -1,0 +1,55 @@
+# Flagship experiment. This file is the whole contract: change it, get a different
+# result, and the run id changes with it.
+id: late-night-airport-expansion
+title: Late-night airport expansion
+question: >-
+  Can airport priority and service-area expansion meet a seven-minute pickup target
+  without overloading overnight charging?
+owner: ops-strategy
+config_version: 1.2.0
+
+baseline:
+  label: Current operations
+  fleet:
+    vehicles: 220
+    depots: 2
+    chargers: 36
+    starting_soc: 0.74
+  policy:
+    dispatch: nearest_available
+    airport_priority: false
+    airport_battery_reserve: 0.0
+    demand_aware_repositioning: false
+    service_area_expansion: false
+
+proposed:
+  label: Airport priority + expansion
+  fleet:
+    vehicles: 220
+    depots: 2
+    chargers: 36
+    starting_soc: 0.74
+  policy:
+    dispatch: demand_aware
+    airport_priority: true
+    airport_battery_reserve: 0.15
+    demand_aware_repositioning: true
+    service_area_expansion: true
+
+demand:
+  percentile: p50
+  rain: false
+  event_surge: false
+  day_of_week: 4      # Friday
+
+run:
+  replications: 20
+  seed: 20260214
+  horizon_minutes: 360
+  window_start_hour: 21
+
+targets:
+  p50_pickup_minutes: 5.5
+  p90_pickup_minutes: 7.0
+  max_completion_loss_pct: 4.0
+  max_charger_queue_minutes: 12.0

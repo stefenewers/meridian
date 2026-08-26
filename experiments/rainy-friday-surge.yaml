@@ -1,0 +1,30 @@
+id: rainy-friday-surge
+title: Rainy Friday demand surge
+question: >-
+  Does demand-aware dispatch hold pickup times when wet weather lifts demand and slows
+  travel across the core?
+owner: ops-strategy
+config_version: 1.0.0
+baseline:
+  label: Current operations
+  fleet: { vehicles: 220, depots: 2, chargers: 36, starting_soc: 0.70 }
+  policy:
+    dispatch: nearest_available
+    airport_priority: false
+    demand_aware_repositioning: false
+    service_area_expansion: false
+proposed:
+  label: Demand-aware dispatch
+  fleet: { vehicles: 220, depots: 2, chargers: 36, starting_soc: 0.70 }
+  policy:
+    dispatch: demand_aware
+    airport_priority: false
+    demand_aware_repositioning: true
+    service_area_expansion: false
+demand: { percentile: p90, rain: true, event_surge: false, day_of_week: 4 }
+run: { replications: 16, seed: 20260301, horizon_minutes: 360, window_start_hour: 21 }
+targets:
+  p50_pickup_minutes: 6.0
+  p90_pickup_minutes: 9.0
+  max_completion_loss_pct: 0.5
+  max_charger_queue_minutes: 15.0
