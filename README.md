@@ -43,7 +43,7 @@ seven-minute pickup target without overloading overnight charging?*
 |---|---|---|---|
 | Airport P90 pickup (curbside) | 9.8 min | 7.4 min | **−24%** |
 | Trip completion rate | 90.8% | 87.2% | −3.6 pts |
-| Completed trips | 2,563 | 2,596 | +33 |
+| Completed trips | 2,578 | 2,618 | +41 |
 | Deadhead share of miles | 26.8% | 31.6% | +4.8 pts |
 | P90 charger queue | 6.1 min | 12.1 min | **+99%** |
 | Cost per completed trip | $3.61 | $3.74 | +3.4% |
@@ -151,6 +151,37 @@ cd services/simulation
 ./.venv/bin/python scripts/run_experiment.py late-night-airport-expansion
 ./.venv/bin/python scripts/evaluate_demand_model.py                # model card
 ```
+
+### Regenerating the portfolio scenario matrix
+
+The interactive explorer on
+[stefenewers.com/projects/meridian](https://www.stefenewers.com/projects/meridian) reads a
+precomputed matrix rather than calling a hosted service. Every scenario in it is produced
+by this simulation, through `runner.execute`, with `recommend.build` supplying the verdict.
+
+```bash
+cd services/simulation
+./.venv/bin/python scripts/export_portfolio_scenarios.py \
+  --portfolio ../../www.stefenewers.com
+```
+
+That writes `data/portfolio/scenarios.json` here and copies it to
+`public/meridian/scenarios.json` in the portfolio repo. The exporter validates before it
+writes: every control combination present, unique ids, ordered P10–P90 bands, a single
+seed, and no non-finite values.
+
+Values are deterministic given the same code, config, model artifact, and seed. To prove
+that after a change:
+
+```bash
+./.venv/bin/python scripts/export_portfolio_scenarios.py \
+  --out /tmp/rerun.json \
+  --check-determinism ../../www.stefenewers.com/public/meridian/scenarios.json
+```
+
+The matrix is 18 scenarios: charger count (24/36/48) x demand condition (P10/P50/P90) x
+dispatch policy (nearest-available/demand-aware). The baseline arm is identical in all of
+them, so a visitor only ever changes one side of the comparison.
 
 ## Demo flow
 

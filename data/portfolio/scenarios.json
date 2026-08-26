@@ -1,0 +1,3912 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-08-26T23:02:16Z",
+  "experiment": {
+    "id": "late-night-airport-expansion",
+    "name": "Late-night airport expansion",
+    "question": "Can airport priority and service-area expansion meet a seven-minute pickup target without overloading overnight charging?",
+    "seed": 20260214,
+    "replications": 20,
+    "engineVersion": "meridian-sim-0.1.0",
+    "modelVersion": "demand-lgbm-q-0.3.0",
+    "policyVersion": "dispatch-2026.02.1",
+    "configVersion": "1.2.0",
+    "demandModelCoverageP10P90": 0.7704,
+    "syntheticDemand": true,
+    "pairedReplications": true,
+    "disclaimer": "Simulated output from synthetic demand. Not observed fleet performance."
+  },
+  "controls": {
+    "chargers": [
+      24,
+      36,
+      48
+    ],
+    "demand": [
+      {
+        "value": "p10",
+        "label": "Light",
+        "note": "A quiet night, low end of the forecast"
+      },
+      {
+        "value": "p50",
+        "label": "Typical",
+        "note": "Centred on the median forecast"
+      },
+      {
+        "value": "p90",
+        "label": "Upper-tail",
+        "note": "A busy night, top of the forecast"
+      }
+    ],
+    "dispatch": [
+      {
+        "value": "nearest_available",
+        "label": "Nearest available",
+        "note": "Greedy matching, oldest request first"
+      },
+      {
+        "value": "demand_aware",
+        "label": "Demand-aware",
+        "note": "Batched min-cost assignment solved with OR-Tools"
+      }
+    ]
+  },
+  "defaultSelection": {
+    "chargers": 36,
+    "demand": "p50",
+    "dispatch": "demand_aware"
+  },
+  "scenarios": [
+    {
+      "id": "chargers-24_demand-p10_dispatch-nearest-available",
+      "selection": {
+        "chargers": 24,
+        "demand": "p10",
+        "dispatch": "nearest_available"
+      },
+      "configuration": {
+        "baseline": {
+          "label": "Current operations",
+          "vehicles": 220,
+          "chargers": 36,
+          "dispatch": "nearest_available",
+          "airportPriority": false,
+          "serviceAreaExpansion": false
+        },
+        "proposed": {
+          "label": "Airport priority + expansion",
+          "vehicles": 220,
+          "chargers": 24,
+          "dispatch": "nearest_available",
+          "airportPriority": true,
+          "airportBatteryReserve": 0.15,
+          "repositioning": true,
+          "serviceAreaExpansion": true
+        }
+      },
+      "metrics": [
+        {
+          "key": "airport_p90_pickup_minutes",
+          "label": "Airport pickup, P90",
+          "unit": "min",
+          "better": "lower",
+          "decimals": 1,
+          "primary": true,
+          "baseline": {
+            "mean": 2.281,
+            "p10": 2.25,
+            "p50": 2.28,
+            "p90": 2.311
+          },
+          "proposed": {
+            "mean": 2.277,
+            "p10": 2.249,
+            "p50": 2.28,
+            "p90": 2.303
+          },
+          "delta": -0.004,
+          "note": "Curbside at the terminal",
+          "threshold": {
+            "value": 7.0,
+            "kind": "target"
+          }
+        },
+        {
+          "key": "completion_rate",
+          "label": "Trip completion",
+          "unit": "%",
+          "better": "higher",
+          "decimals": 1,
+          "primary": true,
+          "baseline": {
+            "mean": 99.8,
+            "p10": 99.6,
+            "p50": 99.9,
+            "p90": 100.0
+          },
+          "proposed": {
+            "mean": 99.9,
+            "p10": 99.9,
+            "p50": 100.0,
+            "p90": 100.0
+          },
+          "delta": 0.1
+        },
+        {
+          "key": "p90_charge_queue_minutes",
+          "label": "Charger queue, P90",
+          "unit": "min",
+          "better": "lower",
+          "decimals": 1,
+          "primary": true,
+          "baseline": {
+            "mean": 0.0,
+            "p10": 0.0,
+            "p50": 0.0,
+            "p90": 0.0
+          },
+          "proposed": {
+            "mean": 0.0,
+            "p10": 0.0,
+            "p50": 0.0,
+            "p90": 0.0
+          },
+          "delta": 0.0,
+          "threshold": {
+            "value": 12.0,
+            "kind": "guardrail"
+          }
+        },
+        {
+          "key": "cost_per_completed_trip",
+          "label": "Cost per completed trip",
+          "unit": "$",
+          "better": "lower",
+          "decimals": 2,
+          "primary": true,
+          "baseline": {
+            "mean": 5.337,
+            "p10": 5.127,
+            "p50": 5.334,
+            "p90": 5.536
+          },
+          "proposed": {
+            "mean": 5.481,
+            "p10": 5.284,
+            "p50": 5.482,
+            "p90": 5.678
+          },
+          "delta": 0.144
+        },
+        {
+          "key": "completed_trips",
+          "label": "Completed trips",
+          "unit": "",
+          "better": "higher",
+          "decimals": 0,
+          "primary": false,
+          "baseline": {
+            "mean": 1330.4,
+            "p10": 1265.8,
+            "p50": 1327.5,
+            "p90": 1405.0
+          },
+          "proposed": {
+            "mean": 1365.5,
+            "p10": 1300.3,
+            "p50": 1362.5,
+            "p90": 1436.9
+          },
+          "delta": 35.1
+        },
+        {
+          "key": "deadhead_ratio",
+          "label": "Deadhead share of miles",
+          "unit": "%",
+          "better": "lower",
+          "decimals": 1,
+          "primary": false,
+          "baseline": {
+            "mean": 14.1,
+            "p10": 13.0,
+            "p50": 13.6,
+            "p90": 14.9
+          },
+          "proposed": {
+            "mean": 27.1,
+            "p10": 25.0,
+            "p50": 27.0,
+            "p90": 28.9
+          },
+          "delta": 13.0
+        }
+      ],
+      "recommendation": {
+        "verdict": "launch",
+        "label": "Recommended",
+        "summary": "The proposed arm clears every target, including in the upper tail. Airport P90 pickup improves from 2.3 to 2.3 minutes with completion at 99.9% and charging inside its guardrail.",
+        "findings": [
+          {
+            "kind": "win",
+            "metric": "airport_p90_pickup_minutes",
+            "headline": "Airport P90 pickup falls to 2.3 min, inside the 7-minute target",
+            "detail": "Baseline sits at 2.3 min. Across replications the proposed arm's own upper tail reaches 2.3 min, so the target holds on a typical night but still holds on a hot one."
+          },
+          {
+            "kind": "neutral",
+            "metric": "completion_rate",
+            "headline": "Trip completion rises at 99.9%",
+            "detail": "Baseline completes 99.8% of requests. Expansion adds demand as well as coverage, so completion holding is itself a result."
+          },
+          {
+            "kind": "neutral",
+            "metric": "p90_charge_queue_minutes",
+            "headline": "Charger queue stays within guardrail at 0 min in the tail",
+            "detail": "Median night is 0.0 min against a baseline of 0.0 min."
+          },
+          {
+            "kind": "neutral",
+            "metric": "cost_per_completed_trip",
+            "headline": "Cost per completed trip moves +2.7% to $5.48",
+            "detail": "Baseline is $5.34. Deadhead share moves from 14.1% to 27.1%, which is where most of the difference comes from."
+          }
+        ],
+        "guardrails": [
+          "Every figure here is simulated output from synthetic demand, not observed performance."
+        ]
+      },
+      "bindingConstraint": {
+        "key": "airport_p90_pickup_minutes",
+        "label": "Airport pickup, P90",
+        "breached": false,
+        "kind": "target",
+        "threshold": 7.0,
+        "proposedTail": 2.303,
+        "basis": "Largest upper-tail exceedance of a configured threshold across scenarios."
+      },
+      "provenance": {
+        "inputSnapshot": "6f2a31a50314",
+        "seed": 20260214,
+        "replications": 20
+      }
+    },
+    {
+      "id": "chargers-24_demand-p10_dispatch-demand-aware",
+      "selection": {
+        "chargers": 24,
+        "demand": "p10",
+        "dispatch": "demand_aware"
+      },
+      "configuration": {
+        "baseline": {
+          "label": "Current operations",
+          "vehicles": 220,
+          "chargers": 36,
+          "dispatch": "nearest_available",
+          "airportPriority": false,
+          "serviceAreaExpansion": false
+        },
+        "proposed": {
+          "label": "Airport priority + expansion",
+          "vehicles": 220,
+          "chargers": 24,
+          "dispatch": "demand_aware",
+          "airportPriority": true,
+          "airportBatteryReserve": 0.15,
+          "repositioning": true,
+          "serviceAreaExpansion": true
+        }
+      },
+      "metrics": [
+        {
+          "key": "airport_p90_pickup_minutes",
+          "label": "Airport pickup, P90",
+          "unit": "min",
+          "better": "lower",
+          "decimals": 1,
+          "primary": true,
+          "baseline": {
+            "mean": 2.281,
+            "p10": 2.25,
+            "p50": 2.28,
+            "p90": 2.311
+          },
+          "proposed": {
+            "mean": 2.277,
+            "p10": 2.249,
+            "p50": 2.28,
+            "p90": 2.303
+          },
+          "delta": -0.004,
+          "note": "Curbside at the terminal",
+          "threshold": {
+            "value": 7.0,
+            "kind": "target"
+          }
+        },
+        {
+          "key": "completion_rate",
+          "label": "Trip completion",
+          "unit": "%",
+          "better": "higher",
+          "decimals": 1,
+          "primary": true,
+          "baseline": {
+            "mean": 99.8,
+            "p10": 99.6,
+            "p50": 99.9,
+            "p90": 100.0
+          },
+          "proposed": {
+            "mean": 99.9,
+            "p10": 99.9,
+            "p50": 100.0,
+            "p90": 100.0
+          },
+          "delta": 0.1
+        },
+        {
+          "key": "p90_charge_queue_minutes",
+          "label": "Charger queue, P90",
+          "unit": "min",
+          "better": "lower",
+          "decimals": 1,
+          "primary": true,
+          "baseline": {
+            "mean": 0.0,
+            "p10": 0.0,
+            "p50": 0.0,
+            "p90": 0.0
+          },
+          "proposed": {
+            "mean": 0.0,
+            "p10": 0.0,
+            "p50": 0.0,
+            "p90": 0.0
+          },
+          "delta": 0.0,
+          "threshold": {
+            "value": 12.0,
+            "kind": "guardrail"
+          }
+        },
+        {
+          "key": "cost_per_completed_trip",
+          "label": "Cost per completed trip",
+          "unit": "$",
+          "better": "lower",
+          "decimals": 2,
+          "primary": true,
+          "baseline": {
+            "mean": 5.337,
+            "p10": 5.127,
+            "p50": 5.334,
+            "p90": 5.536
+          },
+          "proposed": {
+            "mean": 5.481,
+            "p10": 5.284,
+            "p50": 5.482,
+            "p90": 5.678
+          },
+          "delta": 0.144
+        },
+        {
+          "key": "completed_trips",
+          "label": "Completed trips",
+          "unit": "",
+          "better": "higher",
+          "decimals": 0,
+          "primary": false,
+          "baseline": {
+            "mean": 1330.4,
+            "p10": 1265.8,
+            "p50": 1327.5,
+            "p90": 1405.0
+          },
+          "proposed": {
+            "mean": 1365.5,
+            "p10": 1300.3,
+            "p50": 1362.5,
+            "p90": 1436.9
+          },
+          "delta": 35.1
+        },
+        {
+          "key": "deadhead_ratio",
+          "label": "Deadhead share of miles",
+          "unit": "%",
+          "better": "lower",
+          "decimals": 1,
+          "primary": false,
+          "baseline": {
+            "mean": 14.1,
+            "p10": 13.0,
+            "p50": 13.6,
+            "p90": 14.9
+          },
+          "proposed": {
+            "mean": 27.1,
+            "p10": 25.0,
+            "p50": 27.0,
+            "p90": 28.9
+          },
+          "delta": 13.0
+        }
+      ],
+      "recommendation": {
+        "verdict": "launch",
+        "label": "Recommended",
+        "summary": "The proposed arm clears every target, including in the upper tail. Airport P90 pickup improves from 2.3 to 2.3 minutes with completion at 99.9% and charging inside its guardrail.",
+        "findings": [
+          {
+            "kind": "win",
+            "metric": "airport_p90_pickup_minutes",
+            "headline": "Airport P90 pickup falls to 2.3 min, inside the 7-minute target",
+            "detail": "Baseline sits at 2.3 min. Across replications the proposed arm's own upper tail reaches 2.3 min, so the target holds on a typical night but still holds on a hot one."
+          },
+          {
+            "kind": "neutral",
+            "metric": "completion_rate",
+            "headline": "Trip completion rises at 99.9%",
+            "detail": "Baseline completes 99.8% of requests. Expansion adds demand as well as coverage, so completion holding is itself a result."
+          },
+          {
+            "kind": "neutral",
+            "metric": "p90_charge_queue_minutes",
+            "headline": "Charger queue stays within guardrail at 0 min in the tail",
+            "detail": "Median night is 0.0 min against a baseline of 0.0 min."
+          },
+          {
+            "kind": "neutral",
+            "metric": "cost_per_completed_trip",
+            "headline": "Cost per completed trip moves +2.7% to $5.48",
+            "detail": "Baseline is $5.34. Deadhead share moves from 14.1% to 27.1%, which is where most of the difference comes from."
+          }
+        ],
+        "guardrails": [
+          "Every figure here is simulated output from synthetic demand, not observed performance."
+        ]
+      },
+      "bindingConstraint": {
+        "key": "airport_p90_pickup_minutes",
+        "label": "Airport pickup, P90",
+        "breached": false,
+        "kind": "target",
+        "threshold": 7.0,
+        "proposedTail": 2.303,
+        "basis": "Largest upper-tail exceedance of a configured threshold across scenarios."
+      },
+      "provenance": {
+        "inputSnapshot": "05f4bd7b00c9",
+        "seed": 20260214,
+        "replications": 20
+      }
+    },
+    {
+      "id": "chargers-24_demand-p50_dispatch-nearest-available",
+      "selection": {
+        "chargers": 24,
+        "demand": "p50",
+        "dispatch": "nearest_available"
+      },
+      "configuration": {
+        "baseline": {
+          "label": "Current operations",
+          "vehicles": 220,
+          "chargers": 36,
+          "dispatch": "nearest_available",
+          "airportPriority": false,
+          "serviceAreaExpansion": false
+        },
+        "proposed": {
+          "label": "Airport priority + expansion",
+          "vehicles": 220,
+          "chargers": 24,
+          "dispatch": "nearest_available",
+          "airportPriority": true,
+          "airportBatteryReserve": 0.15,
+          "repositioning": true,
+          "serviceAreaExpansion": true
+        }
+      },
+      "metrics": [
+        {
+          "key": "airport_p90_pickup_minutes",
+          "label": "Airport pickup, P90",
+          "unit": "min",
+          "better": "lower",
+          "decimals": 1,
+          "primary": true,
+          "baseline": {
+            "mean": 9.777,
+            "p10": 4.032,
+            "p50": 12.905,
+            "p90": 13.383
+          },
+          "proposed": {
+            "mean": 9.301,
+            "p10": 4.878,
+            "p50": 7.92,
+            "p90": 13.432
+          },
+          "delta": -0.476,
+          "note": "Curbside at the terminal",
+          "threshold": {
+            "value": 7.0,
+            "kind": "target"
+          }
+        },
+        {
+          "key": "completion_rate",
+          "label": "Trip completion",
+          "unit": "%",
+          "better": "higher",
+          "decimals": 1,
+          "primary": true,
+          "baseline": {
+            "mean": 90.8,
+            "p10": 87.8,
+            "p50": 91.1,
+            "p90": 93.8
+          },
+          "proposed": {
+            "mean": 87.9,
+            "p10": 84.0,
+            "p50": 88.1,
+            "p90": 91.3
+          },
+          "delta": -2.9
+        },
+        {
+          "key": "p90_charge_queue_minutes",
+          "label": "Charger queue, P90",
+          "unit": "min",
+          "better": "lower",
+          "decimals": 1,
+          "primary": true,
+          "baseline": {
+            "mean": 6.079,
+            "p10": 0.0,
+            "p50": 0.07,
+            "p90": 23.073
+          },
+          "proposed": {
+            "mean": 61.329,
+            "p10": 30.627,
+            "p50": 59.315,
+            "p90": 84.61
+          },
+          "delta": 55.25,
+          "threshold": {
+            "value": 12.0,
+            "kind": "guardrail"
+          }
+        },
+        {
+          "key": "cost_per_completed_trip",
+          "label": "Cost per completed trip",
+          "unit": "$",
+          "better": "lower",
+          "decimals": 2,
+          "primary": true,
+          "baseline": {
+            "mean": 3.612,
+            "p10": 3.521,
+            "p50": 3.623,
+            "p90": 3.697
+          },
+          "proposed": {
+            "mean": 3.701,
+            "p10": 3.577,
+            "p50": 3.71,
+            "p90": 3.809
+          },
+          "delta": 0.089
+        },
+        {
+          "key": "completed_trips",
+          "label": "Completed trips",
+          "unit": "",
+          "better": "higher",
+          "decimals": 0,
+          "primary": false,
+          "baseline": {
+            "mean": 2577.8,
+            "p10": 2488.6,
+            "p50": 2565.5,
+            "p90": 2661.2
+          },
+          "proposed": {
+            "mean": 2638.6,
+            "p10": 2563.3,
+            "p50": 2629.5,
+            "p90": 2771.5
+          },
+          "delta": 60.8
+        },
+        {
+          "key": "deadhead_ratio",
+          "label": "Deadhead share of miles",
+          "unit": "%",
+          "better": "lower",
+          "decimals": 1,
+          "primary": false,
+          "baseline": {
+            "mean": 26.8,
+            "p10": 24.7,
+            "p50": 26.5,
+            "p90": 29.1
+          },
+          "proposed": {
+            "mean": 31.8,
+            "p10": 30.0,
+            "p50": 32.0,
+            "p90": 33.9
+          },
+          "delta": 5.0
+        }
+      ],
+      "recommendation": {
+        "verdict": "do_not_launch",
+        "label": "Do not launch",
+        "summary": "The proposed arm does not clear the primary target. Airport P90 pickup lands at 9.3 minutes against a 7-minute goal, and the change does not pay for its added cost. Re-scope before running this again.",
+        "findings": [
+          {
+            "kind": "risk",
+            "metric": "airport_p90_pickup_minutes",
+            "headline": "Airport P90 pickup improves 5% to 9.3 min, short of the 7-minute target",
+            "detail": "Baseline is 9.8 min. The change does not move the metric enough to justify the operational cost of running it."
+          },
+          {
+            "kind": "neutral",
+            "metric": "completion_rate",
+            "headline": "Trip completion holds at 87.9%",
+            "detail": "Baseline completes 90.8% of requests. Expansion adds demand as well as coverage, so completion holding is itself a result."
+          },
+          {
+            "kind": "risk",
+            "metric": "p90_charge_queue_minutes",
+            "headline": "Charger queue reaches 85 min in the upper tail, past the 12-minute guardrail",
+            "detail": "On a median night the queue is 61.3 min against a baseline of 6.1 min. The risk is concentrated in high-demand draws, when more vehicles finish the window needing charge at once."
+          },
+          {
+            "kind": "neutral",
+            "metric": "cost_per_completed_trip",
+            "headline": "Cost per completed trip moves +2.5% to $3.70",
+            "detail": "Baseline is $3.61. Deadhead share moves from 26.8% to 31.8%, which is where most of the difference comes from."
+          }
+        ],
+        "guardrails": [
+          "Hold rollout if observed P90 charger queue exceeds 12 minutes on any pilot night.",
+          "Every figure here is simulated output from synthetic demand, not observed performance."
+        ]
+      },
+      "bindingConstraint": {
+        "key": "p90_charge_queue_minutes",
+        "label": "Charger queue, P90",
+        "breached": true,
+        "kind": "guardrail",
+        "threshold": 12.0,
+        "proposedTail": 84.61,
+        "basis": "Largest upper-tail exceedance of a configured threshold across scenarios."
+      },
+      "provenance": {
+        "inputSnapshot": "8e06b82af3a4",
+        "seed": 20260214,
+        "replications": 20
+      }
+    },
+    {
+      "id": "chargers-24_demand-p50_dispatch-demand-aware",
+      "selection": {
+        "chargers": 24,
+        "demand": "p50",
+        "dispatch": "demand_aware"
+      },
+      "configuration": {
+        "baseline": {
+          "label": "Current operations",
+          "vehicles": 220,
+          "chargers": 36,
+          "dispatch": "nearest_available",
+          "airportPriority": false,
+          "serviceAreaExpansion": false
+        },
+        "proposed": {
+          "label": "Airport priority + expansion",
+          "vehicles": 220,
+          "chargers": 24,
+          "dispatch": "demand_aware",
+          "airportPriority": true,
+          "airportBatteryReserve": 0.15,
+          "repositioning": true,
+          "serviceAreaExpansion": true
+        }
+      },
+      "metrics": [
+        {
+          "key": "airport_p90_pickup_minutes",
+          "label": "Airport pickup, P90",
+          "unit": "min",
+          "better": "lower",
+          "decimals": 1,
+          "primary": true,
+          "baseline": {
+            "mean": 9.777,
+            "p10": 4.032,
+            "p50": 12.905,
+            "p90": 13.383
+          },
+          "proposed": {
+            "mean": 7.425,
+            "p10": 2.368,
+            "p50": 5.575,
+            "p90": 13.43
+          },
+          "delta": -2.352,
+          "note": "Curbside at the terminal",
+          "threshold": {
+            "value": 7.0,
+            "kind": "target"
+          }
+        },
+        {
+          "key": "completion_rate",
+          "label": "Trip completion",
+          "unit": "%",
+          "better": "higher",
+          "decimals": 1,
+          "primary": true,
+          "baseline": {
+            "mean": 90.8,
+            "p10": 87.8,
+            "p50": 91.1,
+            "p90": 93.8
+          },
+          "proposed": {
+            "mean": 87.2,
+            "p10": 82.9,
+            "p50": 87.1,
+            "p90": 92.0
+          },
+          "delta": -3.6
+        },
+        {
+          "key": "p90_charge_queue_minutes",
+          "label": "Charger queue, P90",
+          "unit": "min",
+          "better": "lower",
+          "decimals": 1,
+          "primary": true,
+          "baseline": {
+            "mean": 6.079,
+            "p10": 0.0,
+            "p50": 0.07,
+            "p90": 23.073
+          },
+          "proposed": {
+            "mean": 59.059,
+            "p10": 30.441,
+            "p50": 60.37,
+            "p90": 84.436
+          },
+          "delta": 52.98,
+          "threshold": {
+            "value": 12.0,
+            "kind": "guardrail"
+          }
+        },
+        {
+          "key": "cost_per_completed_trip",
+          "label": "Cost per completed trip",
+          "unit": "$",
+          "better": "lower",
+          "decimals": 2,
+          "primary": true,
+          "baseline": {
+            "mean": 3.612,
+            "p10": 3.521,
+            "p50": 3.623,
+            "p90": 3.697
+          },
+          "proposed": {
+            "mean": 3.73,
+            "p10": 3.578,
+            "p50": 3.728,
+            "p90": 3.878
+          },
+          "delta": 0.118
+        },
+        {
+          "key": "completed_trips",
+          "label": "Completed trips",
+          "unit": "",
+          "better": "higher",
+          "decimals": 0,
+          "primary": false,
+          "baseline": {
+            "mean": 2577.8,
+            "p10": 2488.6,
+            "p50": 2565.5,
+            "p90": 2661.2
+          },
+          "proposed": {
+            "mean": 2618.45,
+            "p10": 2511.1,
+            "p50": 2612.0,
+            "p90": 2726.5
+          },
+          "delta": 40.65
+        },
+        {
+          "key": "deadhead_ratio",
+          "label": "Deadhead share of miles",
+          "unit": "%",
+          "better": "lower",
+          "decimals": 1,
+          "primary": false,
+          "baseline": {
+            "mean": 26.8,
+            "p10": 24.7,
+            "p50": 26.5,
+            "p90": 29.1
+          },
+          "proposed": {
+            "mean": 31.7,
+            "p10": 28.8,
+            "p50": 31.7,
+            "p90": 34.1
+          },
+          "delta": 4.9
+        }
+      ],
+      "recommendation": {
+        "verdict": "pilot",
+        "label": "Pilot recommended",
+        "summary": "Airport P90 pickup improves from 9.8 to 7.4 minutes, which closes 24% of the gap to the 7-minute target without reaching it, and trip completion holds at 87.2%. It is not safe fleet-wide yet: under upper-tail demand the charger queue reaches 84 minutes against a 12-minute guardrail, and the constraint is charging capacity rather than dispatch. Run a staged pilot on the airport zone and two expansion zones, with charger headroom monitored nightly, before committing the full service area.",
+        "findings": [
+          {
+            "kind": "win",
+            "metric": "airport_p90_pickup_minutes",
+            "headline": "Airport P90 pickup improves 24% to 7.4 min, short of the 7-minute target",
+            "detail": "Baseline is 9.8 min. The change moves the metric substantially but does not close the gap on its own, which points at curbside capacity rather than dispatch logic as the remaining constraint."
+          },
+          {
+            "kind": "neutral",
+            "metric": "completion_rate",
+            "headline": "Trip completion holds at 87.2%",
+            "detail": "Baseline completes 90.8% of requests. Expansion adds demand as well as coverage, so completion holding is itself a result."
+          },
+          {
+            "kind": "risk",
+            "metric": "p90_charge_queue_minutes",
+            "headline": "Charger queue reaches 84 min in the upper tail, past the 12-minute guardrail",
+            "detail": "On a median night the queue is 59.1 min against a baseline of 6.1 min. The risk is concentrated in high-demand draws, when more vehicles finish the window needing charge at once."
+          },
+          {
+            "kind": "neutral",
+            "metric": "cost_per_completed_trip",
+            "headline": "Cost per completed trip moves +3.3% to $3.73",
+            "detail": "Baseline is $3.61. Deadhead share moves from 26.8% to 31.7%, which is where most of the difference comes from."
+          }
+        ],
+        "guardrails": [
+          "Hold rollout if observed P90 charger queue exceeds 12 minutes on any pilot night.",
+          "Stage expansion zones one at a time, holding at least two weeks between additions.",
+          "Add depot charger capacity before extending the pilot to the full service area.",
+          "Every figure here is simulated output from synthetic demand, not observed performance."
+        ]
+      },
+      "bindingConstraint": {
+        "key": "p90_charge_queue_minutes",
+        "label": "Charger queue, P90",
+        "breached": true,
+        "kind": "guardrail",
+        "threshold": 12.0,
+        "proposedTail": 84.436,
+        "basis": "Largest upper-tail exceedance of a configured threshold across scenarios."
+      },
+      "provenance": {
+        "inputSnapshot": "4c3b09b4ba39",
+        "seed": 20260214,
+        "replications": 20
+      }
+    },
+    {
+      "id": "chargers-24_demand-p90_dispatch-nearest-available",
+      "selection": {
+        "chargers": 24,
+        "demand": "p90",
+        "dispatch": "nearest_available"
+      },
+      "configuration": {
+        "baseline": {
+          "label": "Current operations",
+          "vehicles": 220,
+          "chargers": 36,
+          "dispatch": "nearest_available",
+          "airportPriority": false,
+          "serviceAreaExpansion": false
+        },
+        "proposed": {
+          "label": "Airport priority + expansion",
+          "vehicles": 220,
+          "chargers": 24,
+          "dispatch": "nearest_available",
+          "airportPriority": true,
+          "airportBatteryReserve": 0.15,
+          "repositioning": true,
+          "serviceAreaExpansion": true
+        }
+      },
+      "metrics": [
+        {
+          "key": "airport_p90_pickup_minutes",
+          "label": "Airport pickup, P90",
+          "unit": "min",
+          "better": "lower",
+          "decimals": 1,
+          "primary": true,
+          "baseline": {
+            "mean": 13.332,
+            "p10": 13.11,
+            "p50": 13.35,
+            "p90": 13.571
+          },
+          "proposed": {
+            "mean": 13.491,
+            "p10": 13.353,
+            "p50": 13.485,
+            "p90": 13.663
+          },
+          "delta": 0.159,
+          "note": "Curbside at the terminal",
+          "threshold": {
+            "value": 7.0,
+            "kind": "target"
+          }
+        },
+        {
+          "key": "completion_rate",
+          "label": "Trip completion",
+          "unit": "%",
+          "better": "higher",
+          "decimals": 1,
+          "primary": true,
+          "baseline": {
+            "mean": 60.7,
+            "p10": 57.7,
+            "p50": 60.7,
+            "p90": 64.0
+          },
+          "proposed": {
+            "mean": 50.6,
+            "p10": 47.8,
+            "p50": 50.6,
+            "p90": 53.6
+          },
+          "delta": -10.1
+        },
+        {
+          "key": "p90_charge_queue_minutes",
+          "label": "Charger queue, P90",
+          "unit": "min",
+          "better": "lower",
+          "decimals": 1,
+          "primary": true,
+          "baseline": {
+            "mean": 140.574,
+            "p10": 119.846,
+            "p50": 140.185,
+            "p90": 162.04
+          },
+          "proposed": {
+            "mean": 182.89,
+            "p10": 168.482,
+            "p50": 181.625,
+            "p90": 195.6
+          },
+          "delta": 42.316,
+          "threshold": {
+            "value": 12.0,
+            "kind": "guardrail"
+          }
+        },
+        {
+          "key": "cost_per_completed_trip",
+          "label": "Cost per completed trip",
+          "unit": "$",
+          "better": "lower",
+          "decimals": 2,
+          "primary": true,
+          "baseline": {
+            "mean": 3.748,
+            "p10": 3.66,
+            "p50": 3.744,
+            "p90": 3.842
+          },
+          "proposed": {
+            "mean": 4.249,
+            "p10": 4.103,
+            "p50": 4.226,
+            "p90": 4.421
+          },
+          "delta": 0.501
+        },
+        {
+          "key": "completed_trips",
+          "label": "Completed trips",
+          "unit": "",
+          "better": "higher",
+          "decimals": 0,
+          "primary": false,
+          "baseline": {
+            "mean": 2995.95,
+            "p10": 2917.2,
+            "p50": 3003.5,
+            "p90": 3075.6
+          },
+          "proposed": {
+            "mean": 2683.4,
+            "p10": 2596.7,
+            "p50": 2691.0,
+            "p90": 2772.9
+          },
+          "delta": -312.55
+        },
+        {
+          "key": "deadhead_ratio",
+          "label": "Deadhead share of miles",
+          "unit": "%",
+          "better": "lower",
+          "decimals": 1,
+          "primary": false,
+          "baseline": {
+            "mean": 42.3,
+            "p10": 41.2,
+            "p50": 42.4,
+            "p90": 43.7
+          },
+          "proposed": {
+            "mean": 49.1,
+            "p10": 47.7,
+            "p50": 48.9,
+            "p90": 50.9
+          },
+          "delta": 6.8
+        }
+      ],
+      "recommendation": {
+        "verdict": "do_not_launch",
+        "label": "Do not launch",
+        "summary": "The proposed arm does not clear the primary target. Airport P90 pickup lands at 13.5 minutes against a 7-minute goal, and the change does not pay for its added cost. Re-scope before running this again.",
+        "findings": [
+          {
+            "kind": "risk",
+            "metric": "airport_p90_pickup_minutes",
+            "headline": "Airport P90 pickup improves -1% to 13.5 min, short of the 7-minute target",
+            "detail": "Baseline is 13.3 min. The change does not move the metric enough to justify the operational cost of running it."
+          },
+          {
+            "kind": "risk",
+            "metric": "completion_rate",
+            "headline": "Trip completion drops 10.1 points to 50.6%",
+            "detail": "Baseline completes 60.7%. The proposed arm is turning away more riders than it gains."
+          },
+          {
+            "kind": "risk",
+            "metric": "p90_charge_queue_minutes",
+            "headline": "Charger queue reaches 196 min in the upper tail, past the 12-minute guardrail",
+            "detail": "On a median night the queue is 182.9 min against a baseline of 140.6 min. The risk is concentrated in high-demand draws, when more vehicles finish the window needing charge at once."
+          },
+          {
+            "kind": "risk",
+            "metric": "cost_per_completed_trip",
+            "headline": "Cost per completed trip moves +13.4% to $4.25",
+            "detail": "Baseline is $3.75. Deadhead share moves from 42.3% to 49.1%, which is where most of the difference comes from."
+          }
+        ],
+        "guardrails": [
+          "Hold rollout if observed P90 charger queue exceeds 12 minutes on any pilot night.",
+          "Every figure here is simulated output from synthetic demand, not observed performance."
+        ]
+      },
+      "bindingConstraint": {
+        "key": "p90_charge_queue_minutes",
+        "label": "Charger queue, P90",
+        "breached": true,
+        "kind": "guardrail",
+        "threshold": 12.0,
+        "proposedTail": 195.6,
+        "basis": "Largest upper-tail exceedance of a configured threshold across scenarios."
+      },
+      "provenance": {
+        "inputSnapshot": "13f87ae6cca8",
+        "seed": 20260214,
+        "replications": 20
+      }
+    },
+    {
+      "id": "chargers-24_demand-p90_dispatch-demand-aware",
+      "selection": {
+        "chargers": 24,
+        "demand": "p90",
+        "dispatch": "demand_aware"
+      },
+      "configuration": {
+        "baseline": {
+          "label": "Current operations",
+          "vehicles": 220,
+          "chargers": 36,
+          "dispatch": "nearest_available",
+          "airportPriority": false,
+          "serviceAreaExpansion": false
+        },
+        "proposed": {
+          "label": "Airport priority + expansion",
+          "vehicles": 220,
+          "chargers": 24,
+          "dispatch": "demand_aware",
+          "airportPriority": true,
+          "airportBatteryReserve": 0.15,
+          "repositioning": true,
+          "serviceAreaExpansion": true
+        }
+      },
+      "metrics": [
+        {
+          "key": "airport_p90_pickup_minutes",
+          "label": "Airport pickup, P90",
+          "unit": "min",
+          "better": "lower",
+          "decimals": 1,
+          "primary": true,
+          "baseline": {
+            "mean": 13.332,
+            "p10": 13.11,
+            "p50": 13.35,
+            "p90": 13.571
+          },
+          "proposed": {
+            "mean": 9.114,
+            "p10": 8.596,
+            "p50": 8.84,
+            "p90": 10.095
+          },
+          "delta": -4.218,
+          "note": "Curbside at the terminal",
+          "threshold": {
+            "value": 7.0,
+            "kind": "target"
+          }
+        },
+        {
+          "key": "completion_rate",
+          "label": "Trip completion",
+          "unit": "%",
+          "better": "higher",
+          "decimals": 1,
+          "primary": true,
+          "baseline": {
+            "mean": 60.7,
+            "p10": 57.7,
+            "p50": 60.7,
+            "p90": 64.0
+          },
+          "proposed": {
+            "mean": 48.2,
+            "p10": 45.1,
+            "p50": 48.5,
+            "p90": 51.4
+          },
+          "delta": -12.5
+        },
+        {
+          "key": "p90_charge_queue_minutes",
+          "label": "Charger queue, P90",
+          "unit": "min",
+          "better": "lower",
+          "decimals": 1,
+          "primary": true,
+          "baseline": {
+            "mean": 140.574,
+            "p10": 119.846,
+            "p50": 140.185,
+            "p90": 162.04
+          },
+          "proposed": {
+            "mean": 180.537,
+            "p10": 154.746,
+            "p50": 183.105,
+            "p90": 197.409
+          },
+          "delta": 39.963,
+          "threshold": {
+            "value": 12.0,
+            "kind": "guardrail"
+          }
+        },
+        {
+          "key": "cost_per_completed_trip",
+          "label": "Cost per completed trip",
+          "unit": "$",
+          "better": "lower",
+          "decimals": 2,
+          "primary": true,
+          "baseline": {
+            "mean": 3.748,
+            "p10": 3.66,
+            "p50": 3.744,
+            "p90": 3.842
+          },
+          "proposed": {
+            "mean": 4.469,
+            "p10": 4.329,
+            "p50": 4.442,
+            "p90": 4.675
+          },
+          "delta": 0.721
+        },
+        {
+          "key": "completed_trips",
+          "label": "Completed trips",
+          "unit": "",
+          "better": "higher",
+          "decimals": 0,
+          "primary": false,
+          "baseline": {
+            "mean": 2995.95,
+            "p10": 2917.2,
+            "p50": 3003.5,
+            "p90": 3075.6
+          },
+          "proposed": {
+            "mean": 2554.35,
+            "p10": 2458.4,
+            "p50": 2556.5,
+            "p90": 2642.6
+          },
+          "delta": -441.6
+        },
+        {
+          "key": "deadhead_ratio",
+          "label": "Deadhead share of miles",
+          "unit": "%",
+          "better": "lower",
+          "decimals": 1,
+          "primary": false,
+          "baseline": {
+            "mean": 42.3,
+            "p10": 41.2,
+            "p50": 42.4,
+            "p90": 43.7
+          },
+          "proposed": {
+            "mean": 50.3,
+            "p10": 48.9,
+            "p50": 50.3,
+            "p90": 52.0
+          },
+          "delta": 8.0
+        }
+      ],
+      "recommendation": {
+        "verdict": "do_not_launch",
+        "label": "Do not launch",
+        "summary": "The proposed arm does not clear the primary target. Airport P90 pickup lands at 9.1 minutes against a 7-minute goal, and the change does not pay for its added cost. Re-scope before running this again.",
+        "findings": [
+          {
+            "kind": "win",
+            "metric": "airport_p90_pickup_minutes",
+            "headline": "Airport P90 pickup improves 32% to 9.1 min, short of the 7-minute target",
+            "detail": "Baseline is 13.3 min. The change moves the metric substantially but does not close the gap on its own, which points at curbside capacity rather than dispatch logic as the remaining constraint."
+          },
+          {
+            "kind": "risk",
+            "metric": "completion_rate",
+            "headline": "Trip completion drops 12.5 points to 48.2%",
+            "detail": "Baseline completes 60.7%. The proposed arm is turning away more riders than it gains."
+          },
+          {
+            "kind": "risk",
+            "metric": "p90_charge_queue_minutes",
+            "headline": "Charger queue reaches 197 min in the upper tail, past the 12-minute guardrail",
+            "detail": "On a median night the queue is 180.5 min against a baseline of 140.6 min. The risk is concentrated in high-demand draws, when more vehicles finish the window needing charge at once."
+          },
+          {
+            "kind": "risk",
+            "metric": "cost_per_completed_trip",
+            "headline": "Cost per completed trip moves +19.2% to $4.47",
+            "detail": "Baseline is $3.75. Deadhead share moves from 42.3% to 50.3%, which is where most of the difference comes from."
+          }
+        ],
+        "guardrails": [
+          "Hold rollout if observed P90 charger queue exceeds 12 minutes on any pilot night.",
+          "Every figure here is simulated output from synthetic demand, not observed performance."
+        ]
+      },
+      "bindingConstraint": {
+        "key": "p90_charge_queue_minutes",
+        "label": "Charger queue, P90",
+        "breached": true,
+        "kind": "guardrail",
+        "threshold": 12.0,
+        "proposedTail": 197.409,
+        "basis": "Largest upper-tail exceedance of a configured threshold across scenarios."
+      },
+      "provenance": {
+        "inputSnapshot": "f0c488aa0401",
+        "seed": 20260214,
+        "replications": 20
+      }
+    },
+    {
+      "id": "chargers-36_demand-p10_dispatch-nearest-available",
+      "selection": {
+        "chargers": 36,
+        "demand": "p10",
+        "dispatch": "nearest_available"
+      },
+      "configuration": {
+        "baseline": {
+          "label": "Current operations",
+          "vehicles": 220,
+          "chargers": 36,
+          "dispatch": "nearest_available",
+          "airportPriority": false,
+          "serviceAreaExpansion": false
+        },
+        "proposed": {
+          "label": "Airport priority + expansion",
+          "vehicles": 220,
+          "chargers": 36,
+          "dispatch": "nearest_available",
+          "airportPriority": true,
+          "airportBatteryReserve": 0.15,
+          "repositioning": true,
+          "serviceAreaExpansion": true
+        }
+      },
+      "metrics": [
+        {
+          "key": "airport_p90_pickup_minutes",
+          "label": "Airport pickup, P90",
+          "unit": "min",
+          "better": "lower",
+          "decimals": 1,
+          "primary": true,
+          "baseline": {
+            "mean": 2.281,
+            "p10": 2.25,
+            "p50": 2.28,
+            "p90": 2.311
+          },
+          "proposed": {
+            "mean": 2.277,
+            "p10": 2.249,
+            "p50": 2.28,
+            "p90": 2.303
+          },
+          "delta": -0.004,
+          "note": "Curbside at the terminal",
+          "threshold": {
+            "value": 7.0,
+            "kind": "target"
+          }
+        },
+        {
+          "key": "completion_rate",
+          "label": "Trip completion",
+          "unit": "%",
+          "better": "higher",
+          "decimals": 1,
+          "primary": true,
+          "baseline": {
+            "mean": 99.8,
+            "p10": 99.6,
+            "p50": 99.9,
+            "p90": 100.0
+          },
+          "proposed": {
+            "mean": 99.9,
+            "p10": 99.9,
+            "p50": 100.0,
+            "p90": 100.0
+          },
+          "delta": 0.1
+        },
+        {
+          "key": "p90_charge_queue_minutes",
+          "label": "Charger queue, P90",
+          "unit": "min",
+          "better": "lower",
+          "decimals": 1,
+          "primary": true,
+          "baseline": {
+            "mean": 0.0,
+            "p10": 0.0,
+            "p50": 0.0,
+            "p90": 0.0
+          },
+          "proposed": {
+            "mean": 0.0,
+            "p10": 0.0,
+            "p50": 0.0,
+            "p90": 0.0
+          },
+          "delta": 0.0,
+          "threshold": {
+            "value": 12.0,
+            "kind": "guardrail"
+          }
+        },
+        {
+          "key": "cost_per_completed_trip",
+          "label": "Cost per completed trip",
+          "unit": "$",
+          "better": "lower",
+          "decimals": 2,
+          "primary": true,
+          "baseline": {
+            "mean": 5.337,
+            "p10": 5.127,
+            "p50": 5.334,
+            "p90": 5.536
+          },
+          "proposed": {
+            "mean": 5.481,
+            "p10": 5.284,
+            "p50": 5.482,
+            "p90": 5.678
+          },
+          "delta": 0.144
+        },
+        {
+          "key": "completed_trips",
+          "label": "Completed trips",
+          "unit": "",
+          "better": "higher",
+          "decimals": 0,
+          "primary": false,
+          "baseline": {
+            "mean": 1330.4,
+            "p10": 1265.8,
+            "p50": 1327.5,
+            "p90": 1405.0
+          },
+          "proposed": {
+            "mean": 1365.5,
+            "p10": 1300.3,
+            "p50": 1362.5,
+            "p90": 1436.9
+          },
+          "delta": 35.1
+        },
+        {
+          "key": "deadhead_ratio",
+          "label": "Deadhead share of miles",
+          "unit": "%",
+          "better": "lower",
+          "decimals": 1,
+          "primary": false,
+          "baseline": {
+            "mean": 14.1,
+            "p10": 13.0,
+            "p50": 13.6,
+            "p90": 14.9
+          },
+          "proposed": {
+            "mean": 27.1,
+            "p10": 25.0,
+            "p50": 27.0,
+            "p90": 28.9
+          },
+          "delta": 13.0
+        }
+      ],
+      "recommendation": {
+        "verdict": "launch",
+        "label": "Recommended",
+        "summary": "The proposed arm clears every target, including in the upper tail. Airport P90 pickup improves from 2.3 to 2.3 minutes with completion at 99.9% and charging inside its guardrail.",
+        "findings": [
+          {
+            "kind": "win",
+            "metric": "airport_p90_pickup_minutes",
+            "headline": "Airport P90 pickup falls to 2.3 min, inside the 7-minute target",
+            "detail": "Baseline sits at 2.3 min. Across replications the proposed arm's own upper tail reaches 2.3 min, so the target holds on a typical night but still holds on a hot one."
+          },
+          {
+            "kind": "neutral",
+            "metric": "completion_rate",
+            "headline": "Trip completion rises at 99.9%",
+            "detail": "Baseline completes 99.8% of requests. Expansion adds demand as well as coverage, so completion holding is itself a result."
+          },
+          {
+            "kind": "neutral",
+            "metric": "p90_charge_queue_minutes",
+            "headline": "Charger queue stays within guardrail at 0 min in the tail",
+            "detail": "Median night is 0.0 min against a baseline of 0.0 min."
+          },
+          {
+            "kind": "neutral",
+            "metric": "cost_per_completed_trip",
+            "headline": "Cost per completed trip moves +2.7% to $5.48",
+            "detail": "Baseline is $5.34. Deadhead share moves from 14.1% to 27.1%, which is where most of the difference comes from."
+          }
+        ],
+        "guardrails": [
+          "Every figure here is simulated output from synthetic demand, not observed performance."
+        ]
+      },
+      "bindingConstraint": {
+        "key": "airport_p90_pickup_minutes",
+        "label": "Airport pickup, P90",
+        "breached": false,
+        "kind": "target",
+        "threshold": 7.0,
+        "proposedTail": 2.303,
+        "basis": "Largest upper-tail exceedance of a configured threshold across scenarios."
+      },
+      "provenance": {
+        "inputSnapshot": "e2b1de2621fb",
+        "seed": 20260214,
+        "replications": 20
+      }
+    },
+    {
+      "id": "chargers-36_demand-p10_dispatch-demand-aware",
+      "selection": {
+        "chargers": 36,
+        "demand": "p10",
+        "dispatch": "demand_aware"
+      },
+      "configuration": {
+        "baseline": {
+          "label": "Current operations",
+          "vehicles": 220,
+          "chargers": 36,
+          "dispatch": "nearest_available",
+          "airportPriority": false,
+          "serviceAreaExpansion": false
+        },
+        "proposed": {
+          "label": "Airport priority + expansion",
+          "vehicles": 220,
+          "chargers": 36,
+          "dispatch": "demand_aware",
+          "airportPriority": true,
+          "airportBatteryReserve": 0.15,
+          "repositioning": true,
+          "serviceAreaExpansion": true
+        }
+      },
+      "metrics": [
+        {
+          "key": "airport_p90_pickup_minutes",
+          "label": "Airport pickup, P90",
+          "unit": "min",
+          "better": "lower",
+          "decimals": 1,
+          "primary": true,
+          "baseline": {
+            "mean": 2.281,
+            "p10": 2.25,
+            "p50": 2.28,
+            "p90": 2.311
+          },
+          "proposed": {
+            "mean": 2.277,
+            "p10": 2.249,
+            "p50": 2.28,
+            "p90": 2.303
+          },
+          "delta": -0.004,
+          "note": "Curbside at the terminal",
+          "threshold": {
+            "value": 7.0,
+            "kind": "target"
+          }
+        },
+        {
+          "key": "completion_rate",
+          "label": "Trip completion",
+          "unit": "%",
+          "better": "higher",
+          "decimals": 1,
+          "primary": true,
+          "baseline": {
+            "mean": 99.8,
+            "p10": 99.6,
+            "p50": 99.9,
+            "p90": 100.0
+          },
+          "proposed": {
+            "mean": 99.9,
+            "p10": 99.9,
+            "p50": 100.0,
+            "p90": 100.0
+          },
+          "delta": 0.1
+        },
+        {
+          "key": "p90_charge_queue_minutes",
+          "label": "Charger queue, P90",
+          "unit": "min",
+          "better": "lower",
+          "decimals": 1,
+          "primary": true,
+          "baseline": {
+            "mean": 0.0,
+            "p10": 0.0,
+            "p50": 0.0,
+            "p90": 0.0
+          },
+          "proposed": {
+            "mean": 0.0,
+            "p10": 0.0,
+            "p50": 0.0,
+            "p90": 0.0
+          },
+          "delta": 0.0,
+          "threshold": {
+            "value": 12.0,
+            "kind": "guardrail"
+          }
+        },
+        {
+          "key": "cost_per_completed_trip",
+          "label": "Cost per completed trip",
+          "unit": "$",
+          "better": "lower",
+          "decimals": 2,
+          "primary": true,
+          "baseline": {
+            "mean": 5.337,
+            "p10": 5.127,
+            "p50": 5.334,
+            "p90": 5.536
+          },
+          "proposed": {
+            "mean": 5.481,
+            "p10": 5.284,
+            "p50": 5.482,
+            "p90": 5.678
+          },
+          "delta": 0.144
+        },
+        {
+          "key": "completed_trips",
+          "label": "Completed trips",
+          "unit": "",
+          "better": "higher",
+          "decimals": 0,
+          "primary": false,
+          "baseline": {
+            "mean": 1330.4,
+            "p10": 1265.8,
+            "p50": 1327.5,
+            "p90": 1405.0
+          },
+          "proposed": {
+            "mean": 1365.5,
+            "p10": 1300.3,
+            "p50": 1362.5,
+            "p90": 1436.9
+          },
+          "delta": 35.1
+        },
+        {
+          "key": "deadhead_ratio",
+          "label": "Deadhead share of miles",
+          "unit": "%",
+          "better": "lower",
+          "decimals": 1,
+          "primary": false,
+          "baseline": {
+            "mean": 14.1,
+            "p10": 13.0,
+            "p50": 13.6,
+            "p90": 14.9
+          },
+          "proposed": {
+            "mean": 27.1,
+            "p10": 25.0,
+            "p50": 27.0,
+            "p90": 28.9
+          },
+          "delta": 13.0
+        }
+      ],
+      "recommendation": {
+        "verdict": "launch",
+        "label": "Recommended",
+        "summary": "The proposed arm clears every target, including in the upper tail. Airport P90 pickup improves from 2.3 to 2.3 minutes with completion at 99.9% and charging inside its guardrail.",
+        "findings": [
+          {
+            "kind": "win",
+            "metric": "airport_p90_pickup_minutes",
+            "headline": "Airport P90 pickup falls to 2.3 min, inside the 7-minute target",
+            "detail": "Baseline sits at 2.3 min. Across replications the proposed arm's own upper tail reaches 2.3 min, so the target holds on a typical night but still holds on a hot one."
+          },
+          {
+            "kind": "neutral",
+            "metric": "completion_rate",
+            "headline": "Trip completion rises at 99.9%",
+            "detail": "Baseline completes 99.8% of requests. Expansion adds demand as well as coverage, so completion holding is itself a result."
+          },
+          {
+            "kind": "neutral",
+            "metric": "p90_charge_queue_minutes",
+            "headline": "Charger queue stays within guardrail at 0 min in the tail",
+            "detail": "Median night is 0.0 min against a baseline of 0.0 min."
+          },
+          {
+            "kind": "neutral",
+            "metric": "cost_per_completed_trip",
+            "headline": "Cost per completed trip moves +2.7% to $5.48",
+            "detail": "Baseline is $5.34. Deadhead share moves from 14.1% to 27.1%, which is where most of the difference comes from."
+          }
+        ],
+        "guardrails": [
+          "Every figure here is simulated output from synthetic demand, not observed performance."
+        ]
+      },
+      "bindingConstraint": {
+        "key": "airport_p90_pickup_minutes",
+        "label": "Airport pickup, P90",
+        "breached": false,
+        "kind": "target",
+        "threshold": 7.0,
+        "proposedTail": 2.303,
+        "basis": "Largest upper-tail exceedance of a configured threshold across scenarios."
+      },
+      "provenance": {
+        "inputSnapshot": "c324afb79e29",
+        "seed": 20260214,
+        "replications": 20
+      }
+    },
+    {
+      "id": "chargers-36_demand-p50_dispatch-nearest-available",
+      "selection": {
+        "chargers": 36,
+        "demand": "p50",
+        "dispatch": "nearest_available"
+      },
+      "configuration": {
+        "baseline": {
+          "label": "Current operations",
+          "vehicles": 220,
+          "chargers": 36,
+          "dispatch": "nearest_available",
+          "airportPriority": false,
+          "serviceAreaExpansion": false
+        },
+        "proposed": {
+          "label": "Airport priority + expansion",
+          "vehicles": 220,
+          "chargers": 36,
+          "dispatch": "nearest_available",
+          "airportPriority": true,
+          "airportBatteryReserve": 0.15,
+          "repositioning": true,
+          "serviceAreaExpansion": true
+        }
+      },
+      "metrics": [
+        {
+          "key": "airport_p90_pickup_minutes",
+          "label": "Airport pickup, P90",
+          "unit": "min",
+          "better": "lower",
+          "decimals": 1,
+          "primary": true,
+          "baseline": {
+            "mean": 9.777,
+            "p10": 4.032,
+            "p50": 12.905,
+            "p90": 13.383
+          },
+          "proposed": {
+            "mean": 9.301,
+            "p10": 4.878,
+            "p50": 7.92,
+            "p90": 13.432
+          },
+          "delta": -0.476,
+          "note": "Curbside at the terminal",
+          "threshold": {
+            "value": 7.0,
+            "kind": "target"
+          }
+        },
+        {
+          "key": "completion_rate",
+          "label": "Trip completion",
+          "unit": "%",
+          "better": "higher",
+          "decimals": 1,
+          "primary": true,
+          "baseline": {
+            "mean": 90.8,
+            "p10": 87.8,
+            "p50": 91.1,
+            "p90": 93.8
+          },
+          "proposed": {
+            "mean": 87.9,
+            "p10": 84.0,
+            "p50": 88.1,
+            "p90": 91.3
+          },
+          "delta": -2.9
+        },
+        {
+          "key": "p90_charge_queue_minutes",
+          "label": "Charger queue, P90",
+          "unit": "min",
+          "better": "lower",
+          "decimals": 1,
+          "primary": true,
+          "baseline": {
+            "mean": 6.079,
+            "p10": 0.0,
+            "p50": 0.07,
+            "p90": 23.073
+          },
+          "proposed": {
+            "mean": 10.491,
+            "p10": 0.0,
+            "p50": 2.92,
+            "p90": 22.951
+          },
+          "delta": 4.412,
+          "threshold": {
+            "value": 12.0,
+            "kind": "guardrail"
+          }
+        },
+        {
+          "key": "cost_per_completed_trip",
+          "label": "Cost per completed trip",
+          "unit": "$",
+          "better": "lower",
+          "decimals": 2,
+          "primary": true,
+          "baseline": {
+            "mean": 3.612,
+            "p10": 3.521,
+            "p50": 3.623,
+            "p90": 3.697
+          },
+          "proposed": {
+            "mean": 3.708,
+            "p10": 3.586,
+            "p50": 3.718,
+            "p90": 3.815
+          },
+          "delta": 0.096
+        },
+        {
+          "key": "completed_trips",
+          "label": "Completed trips",
+          "unit": "",
+          "better": "higher",
+          "decimals": 0,
+          "primary": false,
+          "baseline": {
+            "mean": 2577.8,
+            "p10": 2488.6,
+            "p50": 2565.5,
+            "p90": 2661.2
+          },
+          "proposed": {
+            "mean": 2638.7,
+            "p10": 2563.3,
+            "p50": 2629.5,
+            "p90": 2771.5
+          },
+          "delta": 60.9
+        },
+        {
+          "key": "deadhead_ratio",
+          "label": "Deadhead share of miles",
+          "unit": "%",
+          "better": "lower",
+          "decimals": 1,
+          "primary": false,
+          "baseline": {
+            "mean": 26.8,
+            "p10": 24.7,
+            "p50": 26.5,
+            "p90": 29.1
+          },
+          "proposed": {
+            "mean": 31.8,
+            "p10": 29.9,
+            "p50": 31.9,
+            "p90": 33.9
+          },
+          "delta": 5.0
+        }
+      ],
+      "recommendation": {
+        "verdict": "do_not_launch",
+        "label": "Do not launch",
+        "summary": "The proposed arm does not clear the primary target. Airport P90 pickup lands at 9.3 minutes against a 7-minute goal, and the change does not pay for its added cost. Re-scope before running this again.",
+        "findings": [
+          {
+            "kind": "risk",
+            "metric": "airport_p90_pickup_minutes",
+            "headline": "Airport P90 pickup improves 5% to 9.3 min, short of the 7-minute target",
+            "detail": "Baseline is 9.8 min. The change does not move the metric enough to justify the operational cost of running it."
+          },
+          {
+            "kind": "neutral",
+            "metric": "completion_rate",
+            "headline": "Trip completion holds at 87.9%",
+            "detail": "Baseline completes 90.8% of requests. Expansion adds demand as well as coverage, so completion holding is itself a result."
+          },
+          {
+            "kind": "risk",
+            "metric": "p90_charge_queue_minutes",
+            "headline": "Charger queue reaches 23 min in the upper tail, past the 12-minute guardrail",
+            "detail": "On a median night the queue is 10.5 min against a baseline of 6.1 min. The risk is concentrated in high-demand draws, when more vehicles finish the window needing charge at once."
+          },
+          {
+            "kind": "neutral",
+            "metric": "cost_per_completed_trip",
+            "headline": "Cost per completed trip moves +2.7% to $3.71",
+            "detail": "Baseline is $3.61. Deadhead share moves from 26.8% to 31.8%, which is where most of the difference comes from."
+          }
+        ],
+        "guardrails": [
+          "Hold rollout if observed P90 charger queue exceeds 12 minutes on any pilot night.",
+          "Every figure here is simulated output from synthetic demand, not observed performance."
+        ]
+      },
+      "bindingConstraint": {
+        "key": "airport_p90_pickup_minutes",
+        "label": "Airport pickup, P90",
+        "breached": true,
+        "kind": "target",
+        "threshold": 7.0,
+        "proposedTail": 13.432,
+        "basis": "Largest upper-tail exceedance of a configured threshold across scenarios."
+      },
+      "provenance": {
+        "inputSnapshot": "8d3cef789f8d",
+        "seed": 20260214,
+        "replications": 20
+      }
+    },
+    {
+      "id": "chargers-36_demand-p50_dispatch-demand-aware",
+      "selection": {
+        "chargers": 36,
+        "demand": "p50",
+        "dispatch": "demand_aware"
+      },
+      "configuration": {
+        "baseline": {
+          "label": "Current operations",
+          "vehicles": 220,
+          "chargers": 36,
+          "dispatch": "nearest_available",
+          "airportPriority": false,
+          "serviceAreaExpansion": false
+        },
+        "proposed": {
+          "label": "Airport priority + expansion",
+          "vehicles": 220,
+          "chargers": 36,
+          "dispatch": "demand_aware",
+          "airportPriority": true,
+          "airportBatteryReserve": 0.15,
+          "repositioning": true,
+          "serviceAreaExpansion": true
+        }
+      },
+      "metrics": [
+        {
+          "key": "airport_p90_pickup_minutes",
+          "label": "Airport pickup, P90",
+          "unit": "min",
+          "better": "lower",
+          "decimals": 1,
+          "primary": true,
+          "baseline": {
+            "mean": 9.777,
+            "p10": 4.032,
+            "p50": 12.905,
+            "p90": 13.383
+          },
+          "proposed": {
+            "mean": 7.425,
+            "p10": 2.368,
+            "p50": 5.575,
+            "p90": 13.43
+          },
+          "delta": -2.352,
+          "note": "Curbside at the terminal",
+          "threshold": {
+            "value": 7.0,
+            "kind": "target"
+          }
+        },
+        {
+          "key": "completion_rate",
+          "label": "Trip completion",
+          "unit": "%",
+          "better": "higher",
+          "decimals": 1,
+          "primary": true,
+          "baseline": {
+            "mean": 90.8,
+            "p10": 87.8,
+            "p50": 91.1,
+            "p90": 93.8
+          },
+          "proposed": {
+            "mean": 87.2,
+            "p10": 82.9,
+            "p50": 87.1,
+            "p90": 92.0
+          },
+          "delta": -3.6
+        },
+        {
+          "key": "p90_charge_queue_minutes",
+          "label": "Charger queue, P90",
+          "unit": "min",
+          "better": "lower",
+          "decimals": 1,
+          "primary": true,
+          "baseline": {
+            "mean": 6.079,
+            "p10": 0.0,
+            "p50": 0.07,
+            "p90": 23.073
+          },
+          "proposed": {
+            "mean": 12.147,
+            "p10": 0.0,
+            "p50": 6.255,
+            "p90": 38.066
+          },
+          "delta": 6.068,
+          "threshold": {
+            "value": 12.0,
+            "kind": "guardrail"
+          }
+        },
+        {
+          "key": "cost_per_completed_trip",
+          "label": "Cost per completed trip",
+          "unit": "$",
+          "better": "lower",
+          "decimals": 2,
+          "primary": true,
+          "baseline": {
+            "mean": 3.612,
+            "p10": 3.521,
+            "p50": 3.623,
+            "p90": 3.697
+          },
+          "proposed": {
+            "mean": 3.736,
+            "p10": 3.583,
+            "p50": 3.739,
+            "p90": 3.881
+          },
+          "delta": 0.124
+        },
+        {
+          "key": "completed_trips",
+          "label": "Completed trips",
+          "unit": "",
+          "better": "higher",
+          "decimals": 0,
+          "primary": false,
+          "baseline": {
+            "mean": 2577.8,
+            "p10": 2488.6,
+            "p50": 2565.5,
+            "p90": 2661.2
+          },
+          "proposed": {
+            "mean": 2618.45,
+            "p10": 2511.1,
+            "p50": 2611.5,
+            "p90": 2726.5
+          },
+          "delta": 40.65
+        },
+        {
+          "key": "deadhead_ratio",
+          "label": "Deadhead share of miles",
+          "unit": "%",
+          "better": "lower",
+          "decimals": 1,
+          "primary": false,
+          "baseline": {
+            "mean": 26.8,
+            "p10": 24.7,
+            "p50": 26.5,
+            "p90": 29.1
+          },
+          "proposed": {
+            "mean": 31.6,
+            "p10": 28.8,
+            "p50": 31.6,
+            "p90": 34.2
+          },
+          "delta": 4.8
+        }
+      ],
+      "recommendation": {
+        "verdict": "pilot",
+        "label": "Pilot recommended",
+        "summary": "Airport P90 pickup improves from 9.8 to 7.4 minutes, which closes 24% of the gap to the 7-minute target without reaching it, and trip completion holds at 87.2%. It is not safe fleet-wide yet: under upper-tail demand the charger queue reaches 38 minutes against a 12-minute guardrail, and the constraint is charging capacity rather than dispatch. Run a staged pilot on the airport zone and two expansion zones, with charger headroom monitored nightly, before committing the full service area.",
+        "findings": [
+          {
+            "kind": "win",
+            "metric": "airport_p90_pickup_minutes",
+            "headline": "Airport P90 pickup improves 24% to 7.4 min, short of the 7-minute target",
+            "detail": "Baseline is 9.8 min. The change moves the metric substantially but does not close the gap on its own, which points at curbside capacity rather than dispatch logic as the remaining constraint."
+          },
+          {
+            "kind": "neutral",
+            "metric": "completion_rate",
+            "headline": "Trip completion holds at 87.2%",
+            "detail": "Baseline completes 90.8% of requests. Expansion adds demand as well as coverage, so completion holding is itself a result."
+          },
+          {
+            "kind": "risk",
+            "metric": "p90_charge_queue_minutes",
+            "headline": "Charger queue reaches 38 min in the upper tail, past the 12-minute guardrail",
+            "detail": "On a median night the queue is 12.1 min against a baseline of 6.1 min. The risk is concentrated in high-demand draws, when more vehicles finish the window needing charge at once."
+          },
+          {
+            "kind": "neutral",
+            "metric": "cost_per_completed_trip",
+            "headline": "Cost per completed trip moves +3.4% to $3.74",
+            "detail": "Baseline is $3.61. Deadhead share moves from 26.8% to 31.6%, which is where most of the difference comes from."
+          }
+        ],
+        "guardrails": [
+          "Hold rollout if observed P90 charger queue exceeds 12 minutes on any pilot night.",
+          "Stage expansion zones one at a time, holding at least two weeks between additions.",
+          "Add depot charger capacity before extending the pilot to the full service area.",
+          "Every figure here is simulated output from synthetic demand, not observed performance."
+        ]
+      },
+      "bindingConstraint": {
+        "key": "p90_charge_queue_minutes",
+        "label": "Charger queue, P90",
+        "breached": true,
+        "kind": "guardrail",
+        "threshold": 12.0,
+        "proposedTail": 38.066,
+        "basis": "Largest upper-tail exceedance of a configured threshold across scenarios."
+      },
+      "provenance": {
+        "inputSnapshot": "f6deadb5fcc1",
+        "seed": 20260214,
+        "replications": 20
+      }
+    },
+    {
+      "id": "chargers-36_demand-p90_dispatch-nearest-available",
+      "selection": {
+        "chargers": 36,
+        "demand": "p90",
+        "dispatch": "nearest_available"
+      },
+      "configuration": {
+        "baseline": {
+          "label": "Current operations",
+          "vehicles": 220,
+          "chargers": 36,
+          "dispatch": "nearest_available",
+          "airportPriority": false,
+          "serviceAreaExpansion": false
+        },
+        "proposed": {
+          "label": "Airport priority + expansion",
+          "vehicles": 220,
+          "chargers": 36,
+          "dispatch": "nearest_available",
+          "airportPriority": true,
+          "airportBatteryReserve": 0.15,
+          "repositioning": true,
+          "serviceAreaExpansion": true
+        }
+      },
+      "metrics": [
+        {
+          "key": "airport_p90_pickup_minutes",
+          "label": "Airport pickup, P90",
+          "unit": "min",
+          "better": "lower",
+          "decimals": 1,
+          "primary": true,
+          "baseline": {
+            "mean": 13.332,
+            "p10": 13.11,
+            "p50": 13.35,
+            "p90": 13.571
+          },
+          "proposed": {
+            "mean": 13.485,
+            "p10": 13.326,
+            "p50": 13.475,
+            "p90": 13.644
+          },
+          "delta": 0.153,
+          "note": "Curbside at the terminal",
+          "threshold": {
+            "value": 7.0,
+            "kind": "target"
+          }
+        },
+        {
+          "key": "completion_rate",
+          "label": "Trip completion",
+          "unit": "%",
+          "better": "higher",
+          "decimals": 1,
+          "primary": true,
+          "baseline": {
+            "mean": 60.7,
+            "p10": 57.7,
+            "p50": 60.7,
+            "p90": 64.0
+          },
+          "proposed": {
+            "mean": 51.7,
+            "p10": 48.7,
+            "p50": 51.5,
+            "p90": 54.3
+          },
+          "delta": -9.0
+        },
+        {
+          "key": "p90_charge_queue_minutes",
+          "label": "Charger queue, P90",
+          "unit": "min",
+          "better": "lower",
+          "decimals": 1,
+          "primary": true,
+          "baseline": {
+            "mean": 140.574,
+            "p10": 119.846,
+            "p50": 140.185,
+            "p90": 162.04
+          },
+          "proposed": {
+            "mean": 155.08,
+            "p10": 141.849,
+            "p50": 155.405,
+            "p90": 170.866
+          },
+          "delta": 14.506,
+          "threshold": {
+            "value": 12.0,
+            "kind": "guardrail"
+          }
+        },
+        {
+          "key": "cost_per_completed_trip",
+          "label": "Cost per completed trip",
+          "unit": "$",
+          "better": "lower",
+          "decimals": 2,
+          "primary": true,
+          "baseline": {
+            "mean": 3.748,
+            "p10": 3.66,
+            "p50": 3.744,
+            "p90": 3.842
+          },
+          "proposed": {
+            "mean": 4.183,
+            "p10": 4.065,
+            "p50": 4.166,
+            "p90": 4.293
+          },
+          "delta": 0.435
+        },
+        {
+          "key": "completed_trips",
+          "label": "Completed trips",
+          "unit": "",
+          "better": "higher",
+          "decimals": 0,
+          "primary": false,
+          "baseline": {
+            "mean": 2995.95,
+            "p10": 2917.2,
+            "p50": 3003.5,
+            "p90": 3075.6
+          },
+          "proposed": {
+            "mean": 2742.55,
+            "p10": 2655.3,
+            "p50": 2744.5,
+            "p90": 2819.5
+          },
+          "delta": -253.4
+        },
+        {
+          "key": "deadhead_ratio",
+          "label": "Deadhead share of miles",
+          "unit": "%",
+          "better": "lower",
+          "decimals": 1,
+          "primary": false,
+          "baseline": {
+            "mean": 42.3,
+            "p10": 41.2,
+            "p50": 42.4,
+            "p90": 43.7
+          },
+          "proposed": {
+            "mean": 48.3,
+            "p10": 46.8,
+            "p50": 48.3,
+            "p90": 49.6
+          },
+          "delta": 6.0
+        }
+      ],
+      "recommendation": {
+        "verdict": "do_not_launch",
+        "label": "Do not launch",
+        "summary": "The proposed arm does not clear the primary target. Airport P90 pickup lands at 13.5 minutes against a 7-minute goal, and the change does not pay for its added cost. Re-scope before running this again.",
+        "findings": [
+          {
+            "kind": "risk",
+            "metric": "airport_p90_pickup_minutes",
+            "headline": "Airport P90 pickup improves -1% to 13.5 min, short of the 7-minute target",
+            "detail": "Baseline is 13.3 min. The change does not move the metric enough to justify the operational cost of running it."
+          },
+          {
+            "kind": "risk",
+            "metric": "completion_rate",
+            "headline": "Trip completion drops 9.0 points to 51.7%",
+            "detail": "Baseline completes 60.7%. The proposed arm is turning away more riders than it gains."
+          },
+          {
+            "kind": "risk",
+            "metric": "p90_charge_queue_minutes",
+            "headline": "Charger queue reaches 171 min in the upper tail, past the 12-minute guardrail",
+            "detail": "On a median night the queue is 155.1 min against a baseline of 140.6 min. The risk is concentrated in high-demand draws, when more vehicles finish the window needing charge at once."
+          },
+          {
+            "kind": "risk",
+            "metric": "cost_per_completed_trip",
+            "headline": "Cost per completed trip moves +11.6% to $4.18",
+            "detail": "Baseline is $3.75. Deadhead share moves from 42.3% to 48.3%, which is where most of the difference comes from."
+          }
+        ],
+        "guardrails": [
+          "Hold rollout if observed P90 charger queue exceeds 12 minutes on any pilot night.",
+          "Every figure here is simulated output from synthetic demand, not observed performance."
+        ]
+      },
+      "bindingConstraint": {
+        "key": "p90_charge_queue_minutes",
+        "label": "Charger queue, P90",
+        "breached": true,
+        "kind": "guardrail",
+        "threshold": 12.0,
+        "proposedTail": 170.866,
+        "basis": "Largest upper-tail exceedance of a configured threshold across scenarios."
+      },
+      "provenance": {
+        "inputSnapshot": "089dc7966735",
+        "seed": 20260214,
+        "replications": 20
+      }
+    },
+    {
+      "id": "chargers-36_demand-p90_dispatch-demand-aware",
+      "selection": {
+        "chargers": 36,
+        "demand": "p90",
+        "dispatch": "demand_aware"
+      },
+      "configuration": {
+        "baseline": {
+          "label": "Current operations",
+          "vehicles": 220,
+          "chargers": 36,
+          "dispatch": "nearest_available",
+          "airportPriority": false,
+          "serviceAreaExpansion": false
+        },
+        "proposed": {
+          "label": "Airport priority + expansion",
+          "vehicles": 220,
+          "chargers": 36,
+          "dispatch": "demand_aware",
+          "airportPriority": true,
+          "airportBatteryReserve": 0.15,
+          "repositioning": true,
+          "serviceAreaExpansion": true
+        }
+      },
+      "metrics": [
+        {
+          "key": "airport_p90_pickup_minutes",
+          "label": "Airport pickup, P90",
+          "unit": "min",
+          "better": "lower",
+          "decimals": 1,
+          "primary": true,
+          "baseline": {
+            "mean": 13.332,
+            "p10": 13.11,
+            "p50": 13.35,
+            "p90": 13.571
+          },
+          "proposed": {
+            "mean": 9.136,
+            "p10": 8.559,
+            "p50": 8.86,
+            "p90": 10.331
+          },
+          "delta": -4.196,
+          "note": "Curbside at the terminal",
+          "threshold": {
+            "value": 7.0,
+            "kind": "target"
+          }
+        },
+        {
+          "key": "completion_rate",
+          "label": "Trip completion",
+          "unit": "%",
+          "better": "higher",
+          "decimals": 1,
+          "primary": true,
+          "baseline": {
+            "mean": 60.7,
+            "p10": 57.7,
+            "p50": 60.7,
+            "p90": 64.0
+          },
+          "proposed": {
+            "mean": 49.2,
+            "p10": 45.8,
+            "p50": 49.5,
+            "p90": 52.2
+          },
+          "delta": -11.5
+        },
+        {
+          "key": "p90_charge_queue_minutes",
+          "label": "Charger queue, P90",
+          "unit": "min",
+          "better": "lower",
+          "decimals": 1,
+          "primary": true,
+          "baseline": {
+            "mean": 140.574,
+            "p10": 119.846,
+            "p50": 140.185,
+            "p90": 162.04
+          },
+          "proposed": {
+            "mean": 152.661,
+            "p10": 136.949,
+            "p50": 152.2,
+            "p90": 167.581
+          },
+          "delta": 12.087,
+          "threshold": {
+            "value": 12.0,
+            "kind": "guardrail"
+          }
+        },
+        {
+          "key": "cost_per_completed_trip",
+          "label": "Cost per completed trip",
+          "unit": "$",
+          "better": "lower",
+          "decimals": 2,
+          "primary": true,
+          "baseline": {
+            "mean": 3.748,
+            "p10": 3.66,
+            "p50": 3.744,
+            "p90": 3.842
+          },
+          "proposed": {
+            "mean": 4.394,
+            "p10": 4.247,
+            "p50": 4.383,
+            "p90": 4.566
+          },
+          "delta": 0.646
+        },
+        {
+          "key": "completed_trips",
+          "label": "Completed trips",
+          "unit": "",
+          "better": "higher",
+          "decimals": 0,
+          "primary": false,
+          "baseline": {
+            "mean": 2995.95,
+            "p10": 2917.2,
+            "p50": 3003.5,
+            "p90": 3075.6
+          },
+          "proposed": {
+            "mean": 2609.95,
+            "p10": 2505.6,
+            "p50": 2620.0,
+            "p90": 2705.8
+          },
+          "delta": -386.0
+        },
+        {
+          "key": "deadhead_ratio",
+          "label": "Deadhead share of miles",
+          "unit": "%",
+          "better": "lower",
+          "decimals": 1,
+          "primary": false,
+          "baseline": {
+            "mean": 42.3,
+            "p10": 41.2,
+            "p50": 42.4,
+            "p90": 43.7
+          },
+          "proposed": {
+            "mean": 49.5,
+            "p10": 48.5,
+            "p50": 49.4,
+            "p90": 51.1
+          },
+          "delta": 7.2
+        }
+      ],
+      "recommendation": {
+        "verdict": "do_not_launch",
+        "label": "Do not launch",
+        "summary": "The proposed arm does not clear the primary target. Airport P90 pickup lands at 9.1 minutes against a 7-minute goal, and the change does not pay for its added cost. Re-scope before running this again.",
+        "findings": [
+          {
+            "kind": "win",
+            "metric": "airport_p90_pickup_minutes",
+            "headline": "Airport P90 pickup improves 31% to 9.1 min, short of the 7-minute target",
+            "detail": "Baseline is 13.3 min. The change moves the metric substantially but does not close the gap on its own, which points at curbside capacity rather than dispatch logic as the remaining constraint."
+          },
+          {
+            "kind": "risk",
+            "metric": "completion_rate",
+            "headline": "Trip completion drops 11.5 points to 49.2%",
+            "detail": "Baseline completes 60.7%. The proposed arm is turning away more riders than it gains."
+          },
+          {
+            "kind": "risk",
+            "metric": "p90_charge_queue_minutes",
+            "headline": "Charger queue reaches 168 min in the upper tail, past the 12-minute guardrail",
+            "detail": "On a median night the queue is 152.7 min against a baseline of 140.6 min. The risk is concentrated in high-demand draws, when more vehicles finish the window needing charge at once."
+          },
+          {
+            "kind": "risk",
+            "metric": "cost_per_completed_trip",
+            "headline": "Cost per completed trip moves +17.2% to $4.39",
+            "detail": "Baseline is $3.75. Deadhead share moves from 42.3% to 49.5%, which is where most of the difference comes from."
+          }
+        ],
+        "guardrails": [
+          "Hold rollout if observed P90 charger queue exceeds 12 minutes on any pilot night.",
+          "Every figure here is simulated output from synthetic demand, not observed performance."
+        ]
+      },
+      "bindingConstraint": {
+        "key": "p90_charge_queue_minutes",
+        "label": "Charger queue, P90",
+        "breached": true,
+        "kind": "guardrail",
+        "threshold": 12.0,
+        "proposedTail": 167.581,
+        "basis": "Largest upper-tail exceedance of a configured threshold across scenarios."
+      },
+      "provenance": {
+        "inputSnapshot": "95a7d0481935",
+        "seed": 20260214,
+        "replications": 20
+      }
+    },
+    {
+      "id": "chargers-48_demand-p10_dispatch-nearest-available",
+      "selection": {
+        "chargers": 48,
+        "demand": "p10",
+        "dispatch": "nearest_available"
+      },
+      "configuration": {
+        "baseline": {
+          "label": "Current operations",
+          "vehicles": 220,
+          "chargers": 36,
+          "dispatch": "nearest_available",
+          "airportPriority": false,
+          "serviceAreaExpansion": false
+        },
+        "proposed": {
+          "label": "Airport priority + expansion",
+          "vehicles": 220,
+          "chargers": 48,
+          "dispatch": "nearest_available",
+          "airportPriority": true,
+          "airportBatteryReserve": 0.15,
+          "repositioning": true,
+          "serviceAreaExpansion": true
+        }
+      },
+      "metrics": [
+        {
+          "key": "airport_p90_pickup_minutes",
+          "label": "Airport pickup, P90",
+          "unit": "min",
+          "better": "lower",
+          "decimals": 1,
+          "primary": true,
+          "baseline": {
+            "mean": 2.281,
+            "p10": 2.25,
+            "p50": 2.28,
+            "p90": 2.311
+          },
+          "proposed": {
+            "mean": 2.277,
+            "p10": 2.249,
+            "p50": 2.28,
+            "p90": 2.303
+          },
+          "delta": -0.004,
+          "note": "Curbside at the terminal",
+          "threshold": {
+            "value": 7.0,
+            "kind": "target"
+          }
+        },
+        {
+          "key": "completion_rate",
+          "label": "Trip completion",
+          "unit": "%",
+          "better": "higher",
+          "decimals": 1,
+          "primary": true,
+          "baseline": {
+            "mean": 99.8,
+            "p10": 99.6,
+            "p50": 99.9,
+            "p90": 100.0
+          },
+          "proposed": {
+            "mean": 99.9,
+            "p10": 99.9,
+            "p50": 100.0,
+            "p90": 100.0
+          },
+          "delta": 0.1
+        },
+        {
+          "key": "p90_charge_queue_minutes",
+          "label": "Charger queue, P90",
+          "unit": "min",
+          "better": "lower",
+          "decimals": 1,
+          "primary": true,
+          "baseline": {
+            "mean": 0.0,
+            "p10": 0.0,
+            "p50": 0.0,
+            "p90": 0.0
+          },
+          "proposed": {
+            "mean": 0.0,
+            "p10": 0.0,
+            "p50": 0.0,
+            "p90": 0.0
+          },
+          "delta": 0.0,
+          "threshold": {
+            "value": 12.0,
+            "kind": "guardrail"
+          }
+        },
+        {
+          "key": "cost_per_completed_trip",
+          "label": "Cost per completed trip",
+          "unit": "$",
+          "better": "lower",
+          "decimals": 2,
+          "primary": true,
+          "baseline": {
+            "mean": 5.337,
+            "p10": 5.127,
+            "p50": 5.334,
+            "p90": 5.536
+          },
+          "proposed": {
+            "mean": 5.481,
+            "p10": 5.284,
+            "p50": 5.482,
+            "p90": 5.678
+          },
+          "delta": 0.144
+        },
+        {
+          "key": "completed_trips",
+          "label": "Completed trips",
+          "unit": "",
+          "better": "higher",
+          "decimals": 0,
+          "primary": false,
+          "baseline": {
+            "mean": 1330.4,
+            "p10": 1265.8,
+            "p50": 1327.5,
+            "p90": 1405.0
+          },
+          "proposed": {
+            "mean": 1365.5,
+            "p10": 1300.3,
+            "p50": 1362.5,
+            "p90": 1436.9
+          },
+          "delta": 35.1
+        },
+        {
+          "key": "deadhead_ratio",
+          "label": "Deadhead share of miles",
+          "unit": "%",
+          "better": "lower",
+          "decimals": 1,
+          "primary": false,
+          "baseline": {
+            "mean": 14.1,
+            "p10": 13.0,
+            "p50": 13.6,
+            "p90": 14.9
+          },
+          "proposed": {
+            "mean": 27.1,
+            "p10": 25.0,
+            "p50": 27.0,
+            "p90": 28.9
+          },
+          "delta": 13.0
+        }
+      ],
+      "recommendation": {
+        "verdict": "launch",
+        "label": "Recommended",
+        "summary": "The proposed arm clears every target, including in the upper tail. Airport P90 pickup improves from 2.3 to 2.3 minutes with completion at 99.9% and charging inside its guardrail.",
+        "findings": [
+          {
+            "kind": "win",
+            "metric": "airport_p90_pickup_minutes",
+            "headline": "Airport P90 pickup falls to 2.3 min, inside the 7-minute target",
+            "detail": "Baseline sits at 2.3 min. Across replications the proposed arm's own upper tail reaches 2.3 min, so the target holds on a typical night but still holds on a hot one."
+          },
+          {
+            "kind": "neutral",
+            "metric": "completion_rate",
+            "headline": "Trip completion rises at 99.9%",
+            "detail": "Baseline completes 99.8% of requests. Expansion adds demand as well as coverage, so completion holding is itself a result."
+          },
+          {
+            "kind": "neutral",
+            "metric": "p90_charge_queue_minutes",
+            "headline": "Charger queue stays within guardrail at 0 min in the tail",
+            "detail": "Median night is 0.0 min against a baseline of 0.0 min."
+          },
+          {
+            "kind": "neutral",
+            "metric": "cost_per_completed_trip",
+            "headline": "Cost per completed trip moves +2.7% to $5.48",
+            "detail": "Baseline is $5.34. Deadhead share moves from 14.1% to 27.1%, which is where most of the difference comes from."
+          }
+        ],
+        "guardrails": [
+          "Every figure here is simulated output from synthetic demand, not observed performance."
+        ]
+      },
+      "bindingConstraint": {
+        "key": "airport_p90_pickup_minutes",
+        "label": "Airport pickup, P90",
+        "breached": false,
+        "kind": "target",
+        "threshold": 7.0,
+        "proposedTail": 2.303,
+        "basis": "Largest upper-tail exceedance of a configured threshold across scenarios."
+      },
+      "provenance": {
+        "inputSnapshot": "e0d0d3a63063",
+        "seed": 20260214,
+        "replications": 20
+      }
+    },
+    {
+      "id": "chargers-48_demand-p10_dispatch-demand-aware",
+      "selection": {
+        "chargers": 48,
+        "demand": "p10",
+        "dispatch": "demand_aware"
+      },
+      "configuration": {
+        "baseline": {
+          "label": "Current operations",
+          "vehicles": 220,
+          "chargers": 36,
+          "dispatch": "nearest_available",
+          "airportPriority": false,
+          "serviceAreaExpansion": false
+        },
+        "proposed": {
+          "label": "Airport priority + expansion",
+          "vehicles": 220,
+          "chargers": 48,
+          "dispatch": "demand_aware",
+          "airportPriority": true,
+          "airportBatteryReserve": 0.15,
+          "repositioning": true,
+          "serviceAreaExpansion": true
+        }
+      },
+      "metrics": [
+        {
+          "key": "airport_p90_pickup_minutes",
+          "label": "Airport pickup, P90",
+          "unit": "min",
+          "better": "lower",
+          "decimals": 1,
+          "primary": true,
+          "baseline": {
+            "mean": 2.281,
+            "p10": 2.25,
+            "p50": 2.28,
+            "p90": 2.311
+          },
+          "proposed": {
+            "mean": 2.277,
+            "p10": 2.249,
+            "p50": 2.28,
+            "p90": 2.303
+          },
+          "delta": -0.004,
+          "note": "Curbside at the terminal",
+          "threshold": {
+            "value": 7.0,
+            "kind": "target"
+          }
+        },
+        {
+          "key": "completion_rate",
+          "label": "Trip completion",
+          "unit": "%",
+          "better": "higher",
+          "decimals": 1,
+          "primary": true,
+          "baseline": {
+            "mean": 99.8,
+            "p10": 99.6,
+            "p50": 99.9,
+            "p90": 100.0
+          },
+          "proposed": {
+            "mean": 99.9,
+            "p10": 99.9,
+            "p50": 100.0,
+            "p90": 100.0
+          },
+          "delta": 0.1
+        },
+        {
+          "key": "p90_charge_queue_minutes",
+          "label": "Charger queue, P90",
+          "unit": "min",
+          "better": "lower",
+          "decimals": 1,
+          "primary": true,
+          "baseline": {
+            "mean": 0.0,
+            "p10": 0.0,
+            "p50": 0.0,
+            "p90": 0.0
+          },
+          "proposed": {
+            "mean": 0.0,
+            "p10": 0.0,
+            "p50": 0.0,
+            "p90": 0.0
+          },
+          "delta": 0.0,
+          "threshold": {
+            "value": 12.0,
+            "kind": "guardrail"
+          }
+        },
+        {
+          "key": "cost_per_completed_trip",
+          "label": "Cost per completed trip",
+          "unit": "$",
+          "better": "lower",
+          "decimals": 2,
+          "primary": true,
+          "baseline": {
+            "mean": 5.337,
+            "p10": 5.127,
+            "p50": 5.334,
+            "p90": 5.536
+          },
+          "proposed": {
+            "mean": 5.481,
+            "p10": 5.284,
+            "p50": 5.482,
+            "p90": 5.678
+          },
+          "delta": 0.144
+        },
+        {
+          "key": "completed_trips",
+          "label": "Completed trips",
+          "unit": "",
+          "better": "higher",
+          "decimals": 0,
+          "primary": false,
+          "baseline": {
+            "mean": 1330.4,
+            "p10": 1265.8,
+            "p50": 1327.5,
+            "p90": 1405.0
+          },
+          "proposed": {
+            "mean": 1365.5,
+            "p10": 1300.3,
+            "p50": 1362.5,
+            "p90": 1436.9
+          },
+          "delta": 35.1
+        },
+        {
+          "key": "deadhead_ratio",
+          "label": "Deadhead share of miles",
+          "unit": "%",
+          "better": "lower",
+          "decimals": 1,
+          "primary": false,
+          "baseline": {
+            "mean": 14.1,
+            "p10": 13.0,
+            "p50": 13.6,
+            "p90": 14.9
+          },
+          "proposed": {
+            "mean": 27.1,
+            "p10": 25.0,
+            "p50": 27.0,
+            "p90": 28.9
+          },
+          "delta": 13.0
+        }
+      ],
+      "recommendation": {
+        "verdict": "launch",
+        "label": "Recommended",
+        "summary": "The proposed arm clears every target, including in the upper tail. Airport P90 pickup improves from 2.3 to 2.3 minutes with completion at 99.9% and charging inside its guardrail.",
+        "findings": [
+          {
+            "kind": "win",
+            "metric": "airport_p90_pickup_minutes",
+            "headline": "Airport P90 pickup falls to 2.3 min, inside the 7-minute target",
+            "detail": "Baseline sits at 2.3 min. Across replications the proposed arm's own upper tail reaches 2.3 min, so the target holds on a typical night but still holds on a hot one."
+          },
+          {
+            "kind": "neutral",
+            "metric": "completion_rate",
+            "headline": "Trip completion rises at 99.9%",
+            "detail": "Baseline completes 99.8% of requests. Expansion adds demand as well as coverage, so completion holding is itself a result."
+          },
+          {
+            "kind": "neutral",
+            "metric": "p90_charge_queue_minutes",
+            "headline": "Charger queue stays within guardrail at 0 min in the tail",
+            "detail": "Median night is 0.0 min against a baseline of 0.0 min."
+          },
+          {
+            "kind": "neutral",
+            "metric": "cost_per_completed_trip",
+            "headline": "Cost per completed trip moves +2.7% to $5.48",
+            "detail": "Baseline is $5.34. Deadhead share moves from 14.1% to 27.1%, which is where most of the difference comes from."
+          }
+        ],
+        "guardrails": [
+          "Every figure here is simulated output from synthetic demand, not observed performance."
+        ]
+      },
+      "bindingConstraint": {
+        "key": "airport_p90_pickup_minutes",
+        "label": "Airport pickup, P90",
+        "breached": false,
+        "kind": "target",
+        "threshold": 7.0,
+        "proposedTail": 2.303,
+        "basis": "Largest upper-tail exceedance of a configured threshold across scenarios."
+      },
+      "provenance": {
+        "inputSnapshot": "1dbb72a43756",
+        "seed": 20260214,
+        "replications": 20
+      }
+    },
+    {
+      "id": "chargers-48_demand-p50_dispatch-nearest-available",
+      "selection": {
+        "chargers": 48,
+        "demand": "p50",
+        "dispatch": "nearest_available"
+      },
+      "configuration": {
+        "baseline": {
+          "label": "Current operations",
+          "vehicles": 220,
+          "chargers": 36,
+          "dispatch": "nearest_available",
+          "airportPriority": false,
+          "serviceAreaExpansion": false
+        },
+        "proposed": {
+          "label": "Airport priority + expansion",
+          "vehicles": 220,
+          "chargers": 48,
+          "dispatch": "nearest_available",
+          "airportPriority": true,
+          "airportBatteryReserve": 0.15,
+          "repositioning": true,
+          "serviceAreaExpansion": true
+        }
+      },
+      "metrics": [
+        {
+          "key": "airport_p90_pickup_minutes",
+          "label": "Airport pickup, P90",
+          "unit": "min",
+          "better": "lower",
+          "decimals": 1,
+          "primary": true,
+          "baseline": {
+            "mean": 9.777,
+            "p10": 4.032,
+            "p50": 12.905,
+            "p90": 13.383
+          },
+          "proposed": {
+            "mean": 9.301,
+            "p10": 4.878,
+            "p50": 7.92,
+            "p90": 13.432
+          },
+          "delta": -0.476,
+          "note": "Curbside at the terminal",
+          "threshold": {
+            "value": 7.0,
+            "kind": "target"
+          }
+        },
+        {
+          "key": "completion_rate",
+          "label": "Trip completion",
+          "unit": "%",
+          "better": "higher",
+          "decimals": 1,
+          "primary": true,
+          "baseline": {
+            "mean": 90.8,
+            "p10": 87.8,
+            "p50": 91.1,
+            "p90": 93.8
+          },
+          "proposed": {
+            "mean": 87.9,
+            "p10": 84.0,
+            "p50": 88.1,
+            "p90": 91.3
+          },
+          "delta": -2.9
+        },
+        {
+          "key": "p90_charge_queue_minutes",
+          "label": "Charger queue, P90",
+          "unit": "min",
+          "better": "lower",
+          "decimals": 1,
+          "primary": true,
+          "baseline": {
+            "mean": 6.079,
+            "p10": 0.0,
+            "p50": 0.07,
+            "p90": 23.073
+          },
+          "proposed": {
+            "mean": 1.15,
+            "p10": 0.0,
+            "p50": 0.0,
+            "p90": 0.976
+          },
+          "delta": -4.929,
+          "threshold": {
+            "value": 12.0,
+            "kind": "guardrail"
+          }
+        },
+        {
+          "key": "cost_per_completed_trip",
+          "label": "Cost per completed trip",
+          "unit": "$",
+          "better": "lower",
+          "decimals": 2,
+          "primary": true,
+          "baseline": {
+            "mean": 3.612,
+            "p10": 3.521,
+            "p50": 3.623,
+            "p90": 3.697
+          },
+          "proposed": {
+            "mean": 3.71,
+            "p10": 3.586,
+            "p50": 3.718,
+            "p90": 3.815
+          },
+          "delta": 0.098
+        },
+        {
+          "key": "completed_trips",
+          "label": "Completed trips",
+          "unit": "",
+          "better": "higher",
+          "decimals": 0,
+          "primary": false,
+          "baseline": {
+            "mean": 2577.8,
+            "p10": 2488.6,
+            "p50": 2565.5,
+            "p90": 2661.2
+          },
+          "proposed": {
+            "mean": 2638.7,
+            "p10": 2563.3,
+            "p50": 2629.5,
+            "p90": 2771.5
+          },
+          "delta": 60.9
+        },
+        {
+          "key": "deadhead_ratio",
+          "label": "Deadhead share of miles",
+          "unit": "%",
+          "better": "lower",
+          "decimals": 1,
+          "primary": false,
+          "baseline": {
+            "mean": 26.8,
+            "p10": 24.7,
+            "p50": 26.5,
+            "p90": 29.1
+          },
+          "proposed": {
+            "mean": 31.8,
+            "p10": 29.9,
+            "p50": 31.9,
+            "p90": 33.9
+          },
+          "delta": 5.0
+        }
+      ],
+      "recommendation": {
+        "verdict": "do_not_launch",
+        "label": "Do not launch",
+        "summary": "The proposed arm does not clear the primary target. Airport P90 pickup lands at 9.3 minutes against a 7-minute goal, and the change does not pay for its added cost. Re-scope before running this again.",
+        "findings": [
+          {
+            "kind": "risk",
+            "metric": "airport_p90_pickup_minutes",
+            "headline": "Airport P90 pickup improves 5% to 9.3 min, short of the 7-minute target",
+            "detail": "Baseline is 9.8 min. The change does not move the metric enough to justify the operational cost of running it."
+          },
+          {
+            "kind": "neutral",
+            "metric": "completion_rate",
+            "headline": "Trip completion holds at 87.9%",
+            "detail": "Baseline completes 90.8% of requests. Expansion adds demand as well as coverage, so completion holding is itself a result."
+          },
+          {
+            "kind": "neutral",
+            "metric": "p90_charge_queue_minutes",
+            "headline": "Charger queue stays within guardrail at 1 min in the tail",
+            "detail": "Median night is 1.1 min against a baseline of 6.1 min."
+          },
+          {
+            "kind": "neutral",
+            "metric": "cost_per_completed_trip",
+            "headline": "Cost per completed trip moves +2.7% to $3.71",
+            "detail": "Baseline is $3.61. Deadhead share moves from 26.8% to 31.8%, which is where most of the difference comes from."
+          }
+        ],
+        "guardrails": [
+          "Every figure here is simulated output from synthetic demand, not observed performance."
+        ]
+      },
+      "bindingConstraint": {
+        "key": "airport_p90_pickup_minutes",
+        "label": "Airport pickup, P90",
+        "breached": true,
+        "kind": "target",
+        "threshold": 7.0,
+        "proposedTail": 13.432,
+        "basis": "Largest upper-tail exceedance of a configured threshold across scenarios."
+      },
+      "provenance": {
+        "inputSnapshot": "82ba2dd83934",
+        "seed": 20260214,
+        "replications": 20
+      }
+    },
+    {
+      "id": "chargers-48_demand-p50_dispatch-demand-aware",
+      "selection": {
+        "chargers": 48,
+        "demand": "p50",
+        "dispatch": "demand_aware"
+      },
+      "configuration": {
+        "baseline": {
+          "label": "Current operations",
+          "vehicles": 220,
+          "chargers": 36,
+          "dispatch": "nearest_available",
+          "airportPriority": false,
+          "serviceAreaExpansion": false
+        },
+        "proposed": {
+          "label": "Airport priority + expansion",
+          "vehicles": 220,
+          "chargers": 48,
+          "dispatch": "demand_aware",
+          "airportPriority": true,
+          "airportBatteryReserve": 0.15,
+          "repositioning": true,
+          "serviceAreaExpansion": true
+        }
+      },
+      "metrics": [
+        {
+          "key": "airport_p90_pickup_minutes",
+          "label": "Airport pickup, P90",
+          "unit": "min",
+          "better": "lower",
+          "decimals": 1,
+          "primary": true,
+          "baseline": {
+            "mean": 9.777,
+            "p10": 4.032,
+            "p50": 12.905,
+            "p90": 13.383
+          },
+          "proposed": {
+            "mean": 7.425,
+            "p10": 2.368,
+            "p50": 5.575,
+            "p90": 13.43
+          },
+          "delta": -2.352,
+          "note": "Curbside at the terminal",
+          "threshold": {
+            "value": 7.0,
+            "kind": "target"
+          }
+        },
+        {
+          "key": "completion_rate",
+          "label": "Trip completion",
+          "unit": "%",
+          "better": "higher",
+          "decimals": 1,
+          "primary": true,
+          "baseline": {
+            "mean": 90.8,
+            "p10": 87.8,
+            "p50": 91.1,
+            "p90": 93.8
+          },
+          "proposed": {
+            "mean": 87.2,
+            "p10": 82.9,
+            "p50": 87.1,
+            "p90": 92.0
+          },
+          "delta": -3.6
+        },
+        {
+          "key": "p90_charge_queue_minutes",
+          "label": "Charger queue, P90",
+          "unit": "min",
+          "better": "lower",
+          "decimals": 1,
+          "primary": true,
+          "baseline": {
+            "mean": 6.079,
+            "p10": 0.0,
+            "p50": 0.07,
+            "p90": 23.073
+          },
+          "proposed": {
+            "mean": 0.802,
+            "p10": 0.0,
+            "p50": 0.0,
+            "p90": 0.946
+          },
+          "delta": -5.277,
+          "threshold": {
+            "value": 12.0,
+            "kind": "guardrail"
+          }
+        },
+        {
+          "key": "cost_per_completed_trip",
+          "label": "Cost per completed trip",
+          "unit": "$",
+          "better": "lower",
+          "decimals": 2,
+          "primary": true,
+          "baseline": {
+            "mean": 3.612,
+            "p10": 3.521,
+            "p50": 3.623,
+            "p90": 3.697
+          },
+          "proposed": {
+            "mean": 3.738,
+            "p10": 3.589,
+            "p50": 3.742,
+            "p90": 3.881
+          },
+          "delta": 0.126
+        },
+        {
+          "key": "completed_trips",
+          "label": "Completed trips",
+          "unit": "",
+          "better": "higher",
+          "decimals": 0,
+          "primary": false,
+          "baseline": {
+            "mean": 2577.8,
+            "p10": 2488.6,
+            "p50": 2565.5,
+            "p90": 2661.2
+          },
+          "proposed": {
+            "mean": 2618.45,
+            "p10": 2511.1,
+            "p50": 2611.5,
+            "p90": 2726.5
+          },
+          "delta": 40.65
+        },
+        {
+          "key": "deadhead_ratio",
+          "label": "Deadhead share of miles",
+          "unit": "%",
+          "better": "lower",
+          "decimals": 1,
+          "primary": false,
+          "baseline": {
+            "mean": 26.8,
+            "p10": 24.7,
+            "p50": 26.5,
+            "p90": 29.1
+          },
+          "proposed": {
+            "mean": 31.6,
+            "p10": 28.8,
+            "p50": 31.6,
+            "p90": 34.2
+          },
+          "delta": 4.8
+        }
+      ],
+      "recommendation": {
+        "verdict": "pilot",
+        "label": "Pilot recommended",
+        "summary": "Airport P90 pickup improves from 9.8 to 7.4 minutes, which closes 24% of the gap to the 7-minute target without reaching it, and trip completion holds at 87.2%. It is not safe fleet-wide yet: under upper-tail demand the charger queue reaches 1 minutes against a 12-minute guardrail, and the constraint is charging capacity rather than dispatch. Run a staged pilot on the airport zone and two expansion zones, with charger headroom monitored nightly, before committing the full service area.",
+        "findings": [
+          {
+            "kind": "win",
+            "metric": "airport_p90_pickup_minutes",
+            "headline": "Airport P90 pickup improves 24% to 7.4 min, short of the 7-minute target",
+            "detail": "Baseline is 9.8 min. The change moves the metric substantially but does not close the gap on its own, which points at curbside capacity rather than dispatch logic as the remaining constraint."
+          },
+          {
+            "kind": "neutral",
+            "metric": "completion_rate",
+            "headline": "Trip completion holds at 87.2%",
+            "detail": "Baseline completes 90.8% of requests. Expansion adds demand as well as coverage, so completion holding is itself a result."
+          },
+          {
+            "kind": "neutral",
+            "metric": "p90_charge_queue_minutes",
+            "headline": "Charger queue stays within guardrail at 1 min in the tail",
+            "detail": "Median night is 0.8 min against a baseline of 6.1 min."
+          },
+          {
+            "kind": "neutral",
+            "metric": "cost_per_completed_trip",
+            "headline": "Cost per completed trip moves +3.5% to $3.74",
+            "detail": "Baseline is $3.61. Deadhead share moves from 26.8% to 31.6%, which is where most of the difference comes from."
+          }
+        ],
+        "guardrails": [
+          "Stage expansion zones one at a time, holding at least two weeks between additions.",
+          "Add depot charger capacity before extending the pilot to the full service area.",
+          "Every figure here is simulated output from synthetic demand, not observed performance."
+        ]
+      },
+      "bindingConstraint": {
+        "key": "airport_p90_pickup_minutes",
+        "label": "Airport pickup, P90",
+        "breached": true,
+        "kind": "target",
+        "threshold": 7.0,
+        "proposedTail": 13.43,
+        "basis": "Largest upper-tail exceedance of a configured threshold across scenarios."
+      },
+      "provenance": {
+        "inputSnapshot": "0780be10d4ce",
+        "seed": 20260214,
+        "replications": 20
+      }
+    },
+    {
+      "id": "chargers-48_demand-p90_dispatch-nearest-available",
+      "selection": {
+        "chargers": 48,
+        "demand": "p90",
+        "dispatch": "nearest_available"
+      },
+      "configuration": {
+        "baseline": {
+          "label": "Current operations",
+          "vehicles": 220,
+          "chargers": 36,
+          "dispatch": "nearest_available",
+          "airportPriority": false,
+          "serviceAreaExpansion": false
+        },
+        "proposed": {
+          "label": "Airport priority + expansion",
+          "vehicles": 220,
+          "chargers": 48,
+          "dispatch": "nearest_available",
+          "airportPriority": true,
+          "airportBatteryReserve": 0.15,
+          "repositioning": true,
+          "serviceAreaExpansion": true
+        }
+      },
+      "metrics": [
+        {
+          "key": "airport_p90_pickup_minutes",
+          "label": "Airport pickup, P90",
+          "unit": "min",
+          "better": "lower",
+          "decimals": 1,
+          "primary": true,
+          "baseline": {
+            "mean": 13.332,
+            "p10": 13.11,
+            "p50": 13.35,
+            "p90": 13.571
+          },
+          "proposed": {
+            "mean": 13.474,
+            "p10": 13.336,
+            "p50": 13.435,
+            "p90": 13.662
+          },
+          "delta": 0.142,
+          "note": "Curbside at the terminal",
+          "threshold": {
+            "value": 7.0,
+            "kind": "target"
+          }
+        },
+        {
+          "key": "completion_rate",
+          "label": "Trip completion",
+          "unit": "%",
+          "better": "higher",
+          "decimals": 1,
+          "primary": true,
+          "baseline": {
+            "mean": 60.7,
+            "p10": 57.7,
+            "p50": 60.7,
+            "p90": 64.0
+          },
+          "proposed": {
+            "mean": 52.5,
+            "p10": 49.4,
+            "p50": 52.4,
+            "p90": 54.8
+          },
+          "delta": -8.2
+        },
+        {
+          "key": "p90_charge_queue_minutes",
+          "label": "Charger queue, P90",
+          "unit": "min",
+          "better": "lower",
+          "decimals": 1,
+          "primary": true,
+          "baseline": {
+            "mean": 140.574,
+            "p10": 119.846,
+            "p50": 140.185,
+            "p90": 162.04
+          },
+          "proposed": {
+            "mean": 126.21,
+            "p10": 113.189,
+            "p50": 121.975,
+            "p90": 150.188
+          },
+          "delta": -14.364,
+          "threshold": {
+            "value": 12.0,
+            "kind": "guardrail"
+          }
+        },
+        {
+          "key": "cost_per_completed_trip",
+          "label": "Cost per completed trip",
+          "unit": "$",
+          "better": "lower",
+          "decimals": 2,
+          "primary": true,
+          "baseline": {
+            "mean": 3.748,
+            "p10": 3.66,
+            "p50": 3.744,
+            "p90": 3.842
+          },
+          "proposed": {
+            "mean": 4.135,
+            "p10": 4.039,
+            "p50": 4.12,
+            "p90": 4.234
+          },
+          "delta": 0.387
+        },
+        {
+          "key": "completed_trips",
+          "label": "Completed trips",
+          "unit": "",
+          "better": "higher",
+          "decimals": 0,
+          "primary": false,
+          "baseline": {
+            "mean": 2995.95,
+            "p10": 2917.2,
+            "p50": 3003.5,
+            "p90": 3075.6
+          },
+          "proposed": {
+            "mean": 2785.15,
+            "p10": 2707.8,
+            "p50": 2801.5,
+            "p90": 2859.2
+          },
+          "delta": -210.8
+        },
+        {
+          "key": "deadhead_ratio",
+          "label": "Deadhead share of miles",
+          "unit": "%",
+          "better": "lower",
+          "decimals": 1,
+          "primary": false,
+          "baseline": {
+            "mean": 42.3,
+            "p10": 41.2,
+            "p50": 42.4,
+            "p90": 43.7
+          },
+          "proposed": {
+            "mean": 47.6,
+            "p10": 46.0,
+            "p50": 47.5,
+            "p90": 48.6
+          },
+          "delta": 5.3
+        }
+      ],
+      "recommendation": {
+        "verdict": "do_not_launch",
+        "label": "Do not launch",
+        "summary": "The proposed arm does not clear the primary target. Airport P90 pickup lands at 13.5 minutes against a 7-minute goal, and the change does not pay for its added cost. Re-scope before running this again.",
+        "findings": [
+          {
+            "kind": "risk",
+            "metric": "airport_p90_pickup_minutes",
+            "headline": "Airport P90 pickup improves -1% to 13.5 min, short of the 7-minute target",
+            "detail": "Baseline is 13.3 min. The change does not move the metric enough to justify the operational cost of running it."
+          },
+          {
+            "kind": "risk",
+            "metric": "completion_rate",
+            "headline": "Trip completion drops 8.2 points to 52.5%",
+            "detail": "Baseline completes 60.7%. The proposed arm is turning away more riders than it gains."
+          },
+          {
+            "kind": "risk",
+            "metric": "p90_charge_queue_minutes",
+            "headline": "Charger queue reaches 150 min in the upper tail, past the 12-minute guardrail",
+            "detail": "On a median night the queue is 126.2 min against a baseline of 140.6 min. The risk is concentrated in high-demand draws, when more vehicles finish the window needing charge at once."
+          },
+          {
+            "kind": "risk",
+            "metric": "cost_per_completed_trip",
+            "headline": "Cost per completed trip moves +10.3% to $4.13",
+            "detail": "Baseline is $3.75. Deadhead share moves from 42.3% to 47.6%, which is where most of the difference comes from."
+          }
+        ],
+        "guardrails": [
+          "Hold rollout if observed P90 charger queue exceeds 12 minutes on any pilot night.",
+          "Every figure here is simulated output from synthetic demand, not observed performance."
+        ]
+      },
+      "bindingConstraint": {
+        "key": "p90_charge_queue_minutes",
+        "label": "Charger queue, P90",
+        "breached": true,
+        "kind": "guardrail",
+        "threshold": 12.0,
+        "proposedTail": 150.188,
+        "basis": "Largest upper-tail exceedance of a configured threshold across scenarios."
+      },
+      "provenance": {
+        "inputSnapshot": "c684926e92fc",
+        "seed": 20260214,
+        "replications": 20
+      }
+    },
+    {
+      "id": "chargers-48_demand-p90_dispatch-demand-aware",
+      "selection": {
+        "chargers": 48,
+        "demand": "p90",
+        "dispatch": "demand_aware"
+      },
+      "configuration": {
+        "baseline": {
+          "label": "Current operations",
+          "vehicles": 220,
+          "chargers": 36,
+          "dispatch": "nearest_available",
+          "airportPriority": false,
+          "serviceAreaExpansion": false
+        },
+        "proposed": {
+          "label": "Airport priority + expansion",
+          "vehicles": 220,
+          "chargers": 48,
+          "dispatch": "demand_aware",
+          "airportPriority": true,
+          "airportBatteryReserve": 0.15,
+          "repositioning": true,
+          "serviceAreaExpansion": true
+        }
+      },
+      "metrics": [
+        {
+          "key": "airport_p90_pickup_minutes",
+          "label": "Airport pickup, P90",
+          "unit": "min",
+          "better": "lower",
+          "decimals": 1,
+          "primary": true,
+          "baseline": {
+            "mean": 13.332,
+            "p10": 13.11,
+            "p50": 13.35,
+            "p90": 13.571
+          },
+          "proposed": {
+            "mean": 9.046,
+            "p10": 8.533,
+            "p50": 8.83,
+            "p90": 10.121
+          },
+          "delta": -4.286,
+          "note": "Curbside at the terminal",
+          "threshold": {
+            "value": 7.0,
+            "kind": "target"
+          }
+        },
+        {
+          "key": "completion_rate",
+          "label": "Trip completion",
+          "unit": "%",
+          "better": "higher",
+          "decimals": 1,
+          "primary": true,
+          "baseline": {
+            "mean": 60.7,
+            "p10": 57.7,
+            "p50": 60.7,
+            "p90": 64.0
+          },
+          "proposed": {
+            "mean": 50.0,
+            "p10": 47.0,
+            "p50": 50.1,
+            "p90": 53.4
+          },
+          "delta": -10.7
+        },
+        {
+          "key": "p90_charge_queue_minutes",
+          "label": "Charger queue, P90",
+          "unit": "min",
+          "better": "lower",
+          "decimals": 1,
+          "primary": true,
+          "baseline": {
+            "mean": 140.574,
+            "p10": 119.846,
+            "p50": 140.185,
+            "p90": 162.04
+          },
+          "proposed": {
+            "mean": 124.567,
+            "p10": 105.661,
+            "p50": 121.775,
+            "p90": 148.748
+          },
+          "delta": -16.007,
+          "threshold": {
+            "value": 12.0,
+            "kind": "guardrail"
+          }
+        },
+        {
+          "key": "cost_per_completed_trip",
+          "label": "Cost per completed trip",
+          "unit": "$",
+          "better": "lower",
+          "decimals": 2,
+          "primary": true,
+          "baseline": {
+            "mean": 3.748,
+            "p10": 3.66,
+            "p50": 3.744,
+            "p90": 3.842
+          },
+          "proposed": {
+            "mean": 4.338,
+            "p10": 4.189,
+            "p50": 4.322,
+            "p90": 4.479
+          },
+          "delta": 0.59
+        },
+        {
+          "key": "completed_trips",
+          "label": "Completed trips",
+          "unit": "",
+          "better": "higher",
+          "decimals": 0,
+          "primary": false,
+          "baseline": {
+            "mean": 2995.95,
+            "p10": 2917.2,
+            "p50": 3003.5,
+            "p90": 3075.6
+          },
+          "proposed": {
+            "mean": 2654.15,
+            "p10": 2573.1,
+            "p50": 2662.0,
+            "p90": 2758.5
+          },
+          "delta": -341.8
+        },
+        {
+          "key": "deadhead_ratio",
+          "label": "Deadhead share of miles",
+          "unit": "%",
+          "better": "lower",
+          "decimals": 1,
+          "primary": false,
+          "baseline": {
+            "mean": 42.3,
+            "p10": 41.2,
+            "p50": 42.4,
+            "p90": 43.7
+          },
+          "proposed": {
+            "mean": 48.9,
+            "p10": 47.7,
+            "p50": 48.9,
+            "p90": 50.2
+          },
+          "delta": 6.6
+        }
+      ],
+      "recommendation": {
+        "verdict": "do_not_launch",
+        "label": "Do not launch",
+        "summary": "The proposed arm does not clear the primary target. Airport P90 pickup lands at 9.0 minutes against a 7-minute goal, and the change does not pay for its added cost. Re-scope before running this again.",
+        "findings": [
+          {
+            "kind": "win",
+            "metric": "airport_p90_pickup_minutes",
+            "headline": "Airport P90 pickup improves 32% to 9.0 min, short of the 7-minute target",
+            "detail": "Baseline is 13.3 min. The change moves the metric substantially but does not close the gap on its own, which points at curbside capacity rather than dispatch logic as the remaining constraint."
+          },
+          {
+            "kind": "risk",
+            "metric": "completion_rate",
+            "headline": "Trip completion drops 10.7 points to 50.0%",
+            "detail": "Baseline completes 60.7%. The proposed arm is turning away more riders than it gains."
+          },
+          {
+            "kind": "risk",
+            "metric": "p90_charge_queue_minutes",
+            "headline": "Charger queue reaches 149 min in the upper tail, past the 12-minute guardrail",
+            "detail": "On a median night the queue is 124.6 min against a baseline of 140.6 min. The risk is concentrated in high-demand draws, when more vehicles finish the window needing charge at once."
+          },
+          {
+            "kind": "risk",
+            "metric": "cost_per_completed_trip",
+            "headline": "Cost per completed trip moves +15.7% to $4.34",
+            "detail": "Baseline is $3.75. Deadhead share moves from 42.3% to 48.9%, which is where most of the difference comes from."
+          }
+        ],
+        "guardrails": [
+          "Hold rollout if observed P90 charger queue exceeds 12 minutes on any pilot night.",
+          "Every figure here is simulated output from synthetic demand, not observed performance."
+        ]
+      },
+      "bindingConstraint": {
+        "key": "p90_charge_queue_minutes",
+        "label": "Charger queue, P90",
+        "breached": true,
+        "kind": "guardrail",
+        "threshold": 12.0,
+        "proposedTail": 148.748,
+        "basis": "Largest upper-tail exceedance of a configured threshold across scenarios."
+      },
+      "provenance": {
+        "inputSnapshot": "fff930c269ce",
+        "seed": 20260214,
+        "replications": 20
+      }
+    }
+  ]
+}
