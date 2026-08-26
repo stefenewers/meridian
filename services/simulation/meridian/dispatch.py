@@ -174,7 +174,7 @@ def reposition_targets(
     forecast_next: dict[str, float],
     supply: dict[str, int],
     *,
-    served: "list[str] | set[str]",
+    served: list[str] | set[str],
     airport_priority: bool = False,
     max_move_fraction: float = 0.22,
 ) -> dict[int, str]:

@@ -1,6 +1,5 @@
 """The demand model's job is calibrated uncertainty, so that is what gets asserted."""
 
-import numpy as np
 
 from meridian.demand import generate_history, sample_scenario, train_quantile_models
 from meridian.world import served_zone_ids

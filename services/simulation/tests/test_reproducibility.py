@@ -16,9 +16,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
-SNIPPET = """
-import json, sys
-sys.path.insert(0, %r)
+SNIPPET = "import json, sys\nsys.path.insert(0, " + repr(str(ROOT)) + ")\n" + """
 from meridian.library import load_by_id
 from meridian.runner import execute
 cfg = load_by_id("late-night-airport-expansion")
@@ -31,7 +29,7 @@ print(json.dumps({
     "verdict": out["recommendation"]["verdict"],
     "snapshot": out["provenance"]["input_snapshot"],
 }, sort_keys=True))
-""" % str(ROOT)
+"""
 
 
 def _run(hash_seed: str) -> dict:

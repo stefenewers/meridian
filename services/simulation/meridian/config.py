@@ -80,7 +80,7 @@ class ExperimentConfig(BaseModel):
     targets: Targets = Field(default_factory=Targets)
 
     @model_validator(mode="after")
-    def _check_arms_differ(self) -> "ExperimentConfig":
+    def _check_arms_differ(self) -> ExperimentConfig:
         # Compare what the simulation actually reads. Labels are for humans, so two arms
         # that differ only by name still compare a configuration to itself.
         def substantive(arm: ArmConfig) -> dict:
@@ -91,7 +91,7 @@ class ExperimentConfig(BaseModel):
         return self
 
     @model_validator(mode="after")
-    def _check_reserve_needs_priority(self) -> "ExperimentConfig":
+    def _check_reserve_needs_priority(self) -> ExperimentConfig:
         for arm in (self.baseline, self.proposed):
             p = arm.policy
             if p.airport_battery_reserve > 0 and not p.airport_priority:

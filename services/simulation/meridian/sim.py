@@ -16,7 +16,6 @@ itself. See docs/assumptions.md.
 
 from __future__ import annotations
 
-import statistics
 from dataclasses import dataclass, field
 
 import numpy as np
@@ -208,7 +207,7 @@ class FleetSim:
 
     # ---- processes -----------------------------------------------------------
 
-    def _serve(self, v: Vehicle, trip: Trip) -> "simpy.events.Event":
+    def _serve(self, v: Vehicle, trip: Trip) -> simpy.events.Event:
         def proc():
             v.status = "to_pickup"
             origin = ZONES_BY_ID[trip.origin]
@@ -254,7 +253,7 @@ class FleetSim:
 
         return self.env.process(proc())
 
-    def _charge(self, v: Vehicle) -> "simpy.events.Event":
+    def _charge(self, v: Vehicle) -> simpy.events.Event:
         def proc():
             v.status = "to_depot"
             depot = nearest_depot(v.x, v.y)
@@ -280,7 +279,7 @@ class FleetSim:
 
         return self.env.process(proc())
 
-    def _reposition(self, v: Vehicle, target: str) -> "simpy.events.Event":
+    def _reposition(self, v: Vehicle, target: str) -> simpy.events.Event:
         def proc():
             v.status = "repositioning"
             z = ZONES_BY_ID[target]

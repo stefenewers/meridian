@@ -8,19 +8,18 @@ the replication index, so a run id can be replayed exactly.
 
 from __future__ import annotations
 
-import hashlib
 import time
 from dataclasses import dataclass, field
-from pathlib import Path
 
 import numpy as np
 
 from . import __version__
 from .config import POLICY_VERSION, SIM_ENGINE_VERSION, ArmConfig, ExperimentConfig
-from .demand import INTERVAL_MINUTES, MODEL_VERSION, DemandModel, sample_scenario
+from .demand import INTERVAL_MINUTES, DemandModel, sample_scenario
 from .metrics import ArmMetrics, Interval, aggregate, aggregate_zones, summarise
 from .model_store import load_model
-from .recommend import Recommendation, build as build_recommendation
+from .recommend import Recommendation
+from .recommend import build as build_recommendation
 from .sim import FleetSim
 from .world import ZONES_BY_ID, served_zone_ids
 

@@ -20,7 +20,7 @@ from dataclasses import dataclass
 import numpy as np
 import pandas as pd
 
-from .world import ZONES, ZONES_BY_ID, ZoneTier
+from .world import ZONES, ZoneTier
 
 INTERVAL_MINUTES = 15
 MODEL_VERSION = "demand-lgbm-q-0.3.0"
@@ -31,7 +31,7 @@ _FEATURES = [
 ]
 
 
-def _shape(zone: "object", interval: int, hour: int) -> float:
+def _shape(zone: object, interval: int, hour: int) -> float:
     """Within-window demand curve, per zone type.
 
     Core zones decay through the night. The airport does the opposite: it peaks with the
