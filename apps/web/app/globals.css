@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+
+  body {
+    @apply bg-canvas text-ink;
+  }
+
+  /* Focus must always be visible: every control here is keyboard reachable. */
+  :focus-visible {
+    @apply outline-none ring-2 ring-grove ring-offset-2 ring-offset-canvas rounded-sm;
+  }
+
+  ::selection { @apply bg-grove/20 text-ink; }
+}
+
+@layer utilities {
+  .rule { @apply border-line; }
+
+  /* Tabular figures keep metric columns from shifting as numbers change. */
+  .nums { font-variant-numeric: tabular-nums; }
+}
