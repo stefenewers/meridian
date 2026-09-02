@@ -37,10 +37,23 @@ jobs:
 
       # Split from the reproducibility test below so a failure in either is identifiable
       # from the step name alone, without opening the log.
-      - name: Unit tests
-        run: pytest -v --durations=10 --ignore=tests/test_reproducibility.py
+      - name: Tests - config
+        run: pytest -v tests/test_config.py
+
+      - name: Tests - demand
+        if: ${{ !cancelled() }}
+        run: pytest -v tests/test_demand.py
+
+      - name: Tests - dispatch
+        if: ${{ !cancelled() }}
+        run: pytest -v tests/test_dispatch.py
+
+      - name: Tests - runner
+        if: ${{ !cancelled() }}
+        run: pytest -v tests/test_runner.py
 
       - name: Cross-process reproducibility
+        if: ${{ !cancelled() }}
         # Shells out twice under different PYTHONHASHSEED values. Set-iteration
         # nondeterminism cannot be caught from inside a single process, and it is the bug
         # this test exists to prevent. It trains a demand model in each subprocess, so it
