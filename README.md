@@ -284,4 +284,4 @@ caught from inside a single process.
 
 ---
 
-Built by [Stefen Ewers](https://www.stefenewers.com) — product, data, and business systems.
+Built by [Stefen Ewers](https://www.stefenewers.com), a software engineer working across TypeScript and Python.
