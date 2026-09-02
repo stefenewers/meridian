@@ -45,33 +45,17 @@ jobs:
       - name: Unit tests
         run: pytest -v --durations=10 --ignore=tests/test_reproducibility.py
 
-      # Preflight: the reproducibility test shells out, so a failure inside the
-      # subprocess surfaces only as a non-zero exit. These name the cause instead.
-      - name: Preflight - experiment file on disk
-        if: ${{ !cancelled() }}
-        run: test -f ../../experiments/late-night-airport-expansion.yaml
-
-      - name: Preflight - EXPERIMENTS_DIR resolves
-        if: ${{ !cancelled() }}
-        run: |
-          python - <<'PY'
-          import sys
-          from meridian.library import EXPERIMENTS_DIR
-          print("EXPERIMENTS_DIR:", EXPERIMENTS_DIR)
-          print("exists:", EXPERIMENTS_DIR.exists())
-          sys.exit(0 if EXPERIMENTS_DIR.exists() else 1)
-          PY
-
-      - name: Preflight - load the experiment
-        if: ${{ !cancelled() }}
-        run: python -c "from meridian.library import load_by_id; load_by_id('late-night-airport-expansion'); print('loaded')"
+      # `execute()` falls back to load_model(), and data/models/ is generated rather
+      # than committed, so the reproducibility test cannot run on a fresh checkout
+      # without this. It is the same step the Makefile's `make train` runs.
+      - name: Train the demand model
+        run: python scripts/train_demand_model.py --save-history
 
       - name: Cross-process reproducibility
         if: ${{ !cancelled() }}
         # Shells out twice under different PYTHONHASHSEED values. Set-iteration
-        # nondeterminism cannot be caught from inside a single process, and it is the bug
-        # this test exists to prevent. It trains a demand model in each subprocess, so it
-        # is the slowest thing here by a wide margin.
+        # nondeterminism cannot be caught from inside a single process, and it is the
+        # bug this test exists to prevent.
         run: pytest -v tests/test_reproducibility.py
 
   web:
