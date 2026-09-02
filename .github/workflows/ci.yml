@@ -31,26 +31,19 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements-dev.txt
+          # The package itself, so `pytest` can import `meridian` without relying on
+          # cwd being on sys.path. `make test` runs `python -m pytest`, which inserts
+          # cwd implicitly; a bare `pytest` does not, and every test file failed to
+          # collect because of it.
+          pip install -e .
 
       - name: Lint
         run: ruff check .
 
       # Split from the reproducibility test below so a failure in either is identifiable
       # from the step name alone, without opening the log.
-      - name: Tests - config
-        run: pytest -v tests/test_config.py
-
-      - name: Tests - demand
-        if: ${{ !cancelled() }}
-        run: pytest -v tests/test_demand.py
-
-      - name: Tests - dispatch
-        if: ${{ !cancelled() }}
-        run: pytest -v tests/test_dispatch.py
-
-      - name: Tests - runner
-        if: ${{ !cancelled() }}
-        run: pytest -v tests/test_runner.py
+      - name: Unit tests
+        run: pytest -v --durations=10 --ignore=tests/test_reproducibility.py
 
       - name: Cross-process reproducibility
         if: ${{ !cancelled() }}
