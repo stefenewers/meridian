@@ -14,7 +14,7 @@ jobs:
   simulation:
     name: Python simulation service
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     defaults:
       run:
         working-directory: services/simulation
@@ -35,11 +35,17 @@ jobs:
       - name: Lint
         run: ruff check .
 
-      - name: Tests
-        # Includes tests/test_reproducibility.py, which shells out under two
-        # PYTHONHASHSEED values. Set-iteration nondeterminism cannot be caught from
-        # inside a single process, and it is the bug this suite exists to prevent.
-        run: pytest -q
+      # Split from the reproducibility test below so a failure in either is identifiable
+      # from the step name alone, without opening the log.
+      - name: Unit tests
+        run: pytest -v --durations=10 --ignore=tests/test_reproducibility.py
+
+      - name: Cross-process reproducibility
+        # Shells out twice under different PYTHONHASHSEED values. Set-iteration
+        # nondeterminism cannot be caught from inside a single process, and it is the bug
+        # this test exists to prevent. It trains a demand model in each subprocess, so it
+        # is the slowest thing here by a wide margin.
+        run: pytest -v tests/test_reproducibility.py
 
   web:
     name: TypeScript frontend
